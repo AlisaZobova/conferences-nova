@@ -19,6 +19,7 @@ class Conference extends Model
     protected $table = 'conferences';
     protected $guarded = false;
     protected $appends = ['available'];
+    protected $casts = ['conf_date' => 'date'];
 
     public function country()
     {

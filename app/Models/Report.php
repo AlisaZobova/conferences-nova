@@ -15,6 +15,7 @@ class Report extends Model
 
     protected $guarded = false;
     protected $with = ['category'];
+    protected $casts = ['start_time' => 'datetime', 'end_time' => 'datetime'];
 
     public function user()
     {
