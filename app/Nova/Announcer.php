@@ -65,11 +65,7 @@ class Announcer extends Resource
 
             PhoneInput::make('Phone')->onlyOnForms()->rules('required'),
 
-            Text::make('Country', function() {
-                return $this->country ? $this->country->name : '';
-            })->exceptOnForms(),
-
-            BelongsTo::make('Country')->rules('required')->onlyOnForms(),
+            BelongsTo::make('Country')->rules('required'),
 
             Text::make('Email')
                 ->rules('required', 'email', 'max:254')

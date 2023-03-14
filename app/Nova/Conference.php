@@ -56,17 +56,9 @@ class Conference extends Resource
 
             GoogleMaps::make('Address'),
 
-            Text::make('Country', function() {
-                return $this->country ? $this->country->name : '';
-            })->exceptOnForms(),
+            BelongsTo::make('Country')->nullable(),
 
-            BelongsTo::make('Country')->onlyOnForms()->nullable(),
-
-            Text::make('Category', function() {
-                return $this->category ? $this->category->name : '';
-            })->exceptOnForms(),
-
-            BelongsTo::make('Category')->onlyOnForms()->nullable()->withoutTrashed(),
+            BelongsTo::make('Category')->nullable()->withoutTrashed(),
         ];
     }
 
