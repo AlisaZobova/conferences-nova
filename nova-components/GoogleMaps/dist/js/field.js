@@ -70,6 +70,13 @@ var map = {
           lng: 30
         };
       }
+    },
+    /**
+     * Fill the given FormData object with the field's internal value.
+     */
+    fill: function fill(formData) {
+      formData.append(this.field.attribute + '[latitude]', this.field.latitude);
+      formData.append(this.field.attribute + '[longitude]', this.field.longitude);
     }
   }
 });

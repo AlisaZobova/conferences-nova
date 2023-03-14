@@ -57,9 +57,11 @@ class GoogleMaps extends Field
 
     protected function fillAttributeFromRequest(NovaRequest $request, $requestAttribute, $model, $attribute)
     {
-        foreach ($request->input($attribute) as $attr => $data) {
-            if ($data != 'null') {
-                $model->setAttribute($attr, $data);
+        if($request->input($attribute)) {
+            foreach ($request->input($attribute) as $attr => $data) {
+                if ($data != 'null') {
+                    $model->setAttribute($attr, $data);
+                }
             }
         }
     }
