@@ -11,6 +11,8 @@ class Comment extends Model
 
     protected $guarded = false;
 
+    protected $casts = ['publication_date' => 'date'];
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
