@@ -4,13 +4,15 @@ namespace App\Nova;
 
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules;
-use Laravel\Nova\Fields\Gravatar;
+use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Password;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Zobova\PhoneInput\PhoneInput;
 
-class User extends Resource
+class Listener extends Resource
 {
     /**
      * The model the resource corresponds to.
@@ -35,13 +37,7 @@ class User extends Resource
         'id', 'firstname', 'lastname', 'email',
     ];
 
-    /**
-     * Indicates if the resource should be displayed in the sidebar.
-     *
-     * @var bool
-     */
-
-    public static $displayInNavigation = false;
+    public static $with = ['country'];
 
     /**
      * Get the fields displayed by the resource.
@@ -54,13 +50,25 @@ class User extends Resource
         return [
             ID::make()->sortable(),
 
-            Gravatar::make()->maxWidth(50),
-
-            Text::make('Firstname')
+            Text::make('First Name', 'firstname')
                 ->rules('required', 'max:255'),
 
-            Text::make('Lastname')
+            Text::make('Last Name', 'lastname')
                 ->rules('required', 'max:255'),
+
+            Date::make('Birthdate')
+                ->rules('required', 'before_or_equal:' . now()),
+
+            Text::make('Phone')
+                ->rules('required', 'max:255')->exceptOnForms(),
+
+            PhoneInput::make('Phone')->onlyOnForms()->rules('required'),
+
+            Text::make('Country', function() {
+                return $this->country ? $this->country->name : '';
+            })->exceptOnForms(),
+
+            BelongsTo::make('Country')->rules('required')->onlyOnForms(),
 
             Text::make('Email')
                 ->rules('required', 'email', 'max:254')
@@ -73,6 +81,7 @@ class User extends Resource
                 ->updateRules('nullable', Rules\Password::defaults()),
         ];
     }
+
 
     /**
      * Get the cards available for the request.
@@ -116,5 +125,20 @@ class User extends Resource
     public function actions(NovaRequest $request)
     {
         return [];
+    }
+
+    /**
+     * Build an "index" query for the given resource.
+     *
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public static function indexQuery(NovaRequest $request, $query)
+    {
+        return $query->whereHas(
+            'roles', function($q){
+            $q->where('name', 'Listener');
+        });
     }
 }
