@@ -12,6 +12,11 @@ class ZoomMeeting extends Model
 
     protected $guarded = false;
 
+    protected $casts = [
+        'start_time' => 'datetime',
+        'created_at' => 'datetime'
+    ];
+
     public function report()
     {
         return $this->belongsTo(Report::class);

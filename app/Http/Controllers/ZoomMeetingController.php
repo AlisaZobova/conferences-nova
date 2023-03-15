@@ -58,6 +58,12 @@ class ZoomMeetingController extends Controller
     {
         $conferenceData = [];
         $conferenceData['id'] = $response['id'];
+        $conferenceData['uuid'] = $response['uuid'];
+        $conferenceData['host_id'] = $response['host_id'];
+        $conferenceData['topic'] = $response['topic'];
+        $conferenceData['type'] = $response['type'];
+        $conferenceData['start_time'] = $response['start_time'];
+        $conferenceData['timezone'] = $response['timezone'];
         $conferenceData['report_id'] = $report->id;
         $conferenceData['join_url'] = $response['join_url'];
         $conferenceData['start_url'] = $response['start_url'];
