@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Http\Controllers\ZoomMeetingController;
 use App\Mail\AdminDeleteReport;
+use App\Mail\AdminUpdateReport;
 use App\Mail\UpdateReportTime;
 use App\Models\Report;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,11 @@ class ReportObserver
      */
     public function updated(Report $report): void
     {
+        if (Auth::user()->hasRole('Admin')) {
+            Mail::to($report->user->email)
+                ->send(new AdminUpdateReport($report->conference, $report, $report->getOriginal('topic')));
+        }
+
         if ($report->start_time != $report->getOriginal('start_time') ||
             $report->end_time != $report->getOriginal('end_time')) {
 
