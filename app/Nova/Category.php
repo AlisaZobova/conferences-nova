@@ -4,27 +4,29 @@ namespace App\Nova;
 
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
-use Laravel\Nova\Fields\Date;
-use Laravel\Nova\Fields\ID;
+use Laravel\Nova\Fields\HasMany;
+use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Http\Requests\NovaRequest;
-use Zobova\GoogleMaps\GoogleMaps;
+use Zobova\CategoriesTree\CategoriesTree;
+use Zobova\CategoryTree\CategoryTree;
 
-class Conference extends Resource
+class Category extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\App\Models\Conference>
+     * @var class-string<\App\Models\Category>
      */
-    public static $model = \App\Models\Conference::class;
+    public static $model = \App\Models\Category::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
      *
      * @var string
      */
-    public static $title = 'title';
+    public static $title = 'name';
 
     /**
      * The columns that should be searched.
@@ -35,7 +37,7 @@ class Conference extends Resource
         'id',
     ];
 
-    public static $with = ['country', 'category'];
+    public static $with = ['parent', 'children'];
 
     /**
      * Get the fields displayed by the resource.
@@ -47,18 +49,16 @@ class Conference extends Resource
     {
         return [
             ID::make()->sortable(),
-
-            Text::make('Title')
-                ->rules('required', 'max:255', 'min:2'),
-
-            Date::make('Date', 'conf_date')
-                ->rules('required', 'after_or_equal:' . now()),
-
-            GoogleMaps::make('Address')->hideFromIndex(),
-
-            BelongsTo::make('Country')->nullable(),
-
-            BelongsTo::make('Category')->nullable()->withoutTrashed(),
+            Text::make('Name')->rules('required'),
+            BelongsTo::make('Parent', 'parent', Category::class)
+                ->withoutTrashed()
+                ->nullable(),
+            Number::make('Children', function () {
+                return count($this->children);
+            })->onlyOnIndex(),
+            CategoriesTree::make('Children')
+                ->withMeta(['tree' => ['root' => true, 'children' => $this->children]])
+                ->exceptOnForms()
         ];
     }
 
