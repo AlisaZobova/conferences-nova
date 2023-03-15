@@ -1,7 +1,8 @@
 <template>
   <PanelItem :index="index" :field="field">
       <template #value>
-          <tree :tree-data="field.tree"></tree>
+          <tree v-if="field.tree.children.length > 0" :tree-data="field.tree"></tree>
+          <span v-else>—</span>
       </template>
   </PanelItem>
 </template>
