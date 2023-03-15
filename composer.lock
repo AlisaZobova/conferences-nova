@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d27193a94c900aed77c9d05aca4126bf",
+    "content-hash": "b6f06f8bc6dfcf834b9d388ace640b05",
     "packages": [
         {
             "name": "brick/math",
@@ -6975,6 +6975,42 @@
                 "source": "https://github.com/webmozarts/assert/tree/1.11.0"
             },
             "time": "2022-06-03T18:03:27+00:00"
+        },
+        {
+            "name": "zobova/categories-tree",
+            "version": "dev-feature/ZA-11",
+            "dist": {
+                "type": "path",
+                "url": "./nova-components/CategoriesTree",
+                "reference": "7b9859babed3026cf80a11c53e7af1f6b15220b6"
+            },
+            "require": {
+                "php": "^7.3|^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Zobova\\CategoriesTree\\FieldServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Zobova\\CategoriesTree\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "A Laravel Nova field.",
+            "keywords": [
+                "laravel",
+                "nova"
+            ],
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "zobova/copy-field",

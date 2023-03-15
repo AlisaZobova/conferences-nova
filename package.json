@@ -13,7 +13,9 @@
         "build-phone-input": "cd nova-components/PhoneInput && npm run dev",
         "build-phone-input-prod": "cd nova-components/PhoneInput && npm run prod",
         "build-google-maps": "cd nova-components/GoogleMaps && npm run dev",
-        "build-google-maps-prod": "cd nova-components/GoogleMaps && npm run prod"
+        "build-google-maps-prod": "cd nova-components/GoogleMaps && npm run prod",
+        "build-category-tree": "cd nova-components/CategoryTree && npm run dev",
+        "build-category-tree-prod": "cd nova-components/CategoryTree && npm run prod"
     },
     "devDependencies": {
         "@popperjs/core": "^2.11.6",
