@@ -135,7 +135,7 @@ return [
     |
      */
 
-    'storage_disk' => env('NOVA_STORAGE_DISK', 'public'),
+    'storage_disk' => env('NOVA_STORAGE_DISK', 'upload'),
 
     /*
     |--------------------------------------------------------------------------
