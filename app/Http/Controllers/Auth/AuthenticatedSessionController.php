@@ -16,9 +16,15 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
-        $request->session()->regenerate();
+        if (Auth::user()->hasRole('Admin')) {
+            $request->session()->invalidate();
+            abort(403);
+        }
 
-        return Auth::user()->load('roles', 'conferences', 'joinedConferences', 'reports', 'favorites');
+        else {
+            $request->session()->regenerate();
+            return Auth::user()->load('roles', 'conferences', 'joinedConferences', 'reports', 'favorites');
+        }
     }
 
     /**
