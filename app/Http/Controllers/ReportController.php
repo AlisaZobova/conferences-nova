@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ReportRequest;
 use App\Jobs\ProcessReportsExport;
 use App\Models\Report;
+use App\Services\ZoomMeetingService;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
@@ -160,7 +161,6 @@ class ReportController extends Controller
 
     public function createZoomMeeting(Report $report, $updReport=false)
     {
-        $zoom = new ZoomMeetingController();
-        return $zoom->store($report, $updReport);
+        return ZoomMeetingService::store($report, $updReport);
     }
 }

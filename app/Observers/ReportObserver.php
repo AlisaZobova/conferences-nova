@@ -2,7 +2,6 @@
 
 namespace App\Observers;
 
-use App\Http\Controllers\ZoomMeetingController;
 use App\Mail\AdminDeleteReport;
 use App\Mail\AdminUpdateReport;
 use App\Mail\JoinAnnouncer;
@@ -11,6 +10,7 @@ use App\Mail\UpdateReportTime;
 use App\Models\Conference;
 use App\Models\Report;
 use App\Models\User;
+use App\Services\ZoomMeetingService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 
@@ -92,8 +92,7 @@ class ReportObserver
 
     public function deleting(Report $report) {
         if ($report->meeting) {
-            $zoom = new ZoomMeetingController();
-            return $zoom->delete($report->meeting->id);
+            return ZoomMeetingService::delete($report->meeting->id);
         }
         else {
             return true;
@@ -101,8 +100,7 @@ class ReportObserver
     }
 
     public function updateZoom($report) {
-        $zoom = new ZoomMeetingController();
-        $success = $zoom->update($report->meeting->id, $report);
+        $success = ZoomMeetingService::update($report->meeting->id, $report);
         if($success) {
             cache()->forget('meetings');
         }
