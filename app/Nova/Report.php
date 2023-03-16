@@ -200,11 +200,7 @@ class Report extends Resource
                 }
             )->exceptOnForms(),
 
-            Text::make(
-                'Category', function () {
-                    return $this->category ? $this->category->name : '';
-                }
-            )->exceptOnForms(),
+            BelongsTo::make('Category')->exceptOnForms(),
         ];
     }
 
