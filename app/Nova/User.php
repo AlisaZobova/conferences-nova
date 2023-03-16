@@ -63,6 +63,7 @@ class User extends Resource
                 ->rules('required', 'max:255'),
 
             Date::make('Birthdate')
+                ->max(now())
                 ->rules('required', 'before_or_equal:' . now()),
 
             Text::make('Phone')
