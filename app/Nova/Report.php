@@ -71,12 +71,13 @@ class Report extends Resource
                         $start_time = date("Y-m-d H:i:s", $start);
                         $end = strtotime($request->get('end_time') . ' UTC');
                         $end_time = date("Y-m-d H:i:s", $end);
+
                         if ($reportId) {
-                            $reports = \App\Models\Report::where('conference_id', $this->conference_id, 'and')
+                            $reports = \App\Models\Report::where('conference_id', $request->get('conference'), 'and')
                                 ->where('id', '!=', $reportId)->get();
                         }
                         else {
-                            $reports = Report::where('conference_id', $this->conference_id)->get();
+                            $reports = Report::where('conference_id', $request->get('conference'))->get();
                         }
                         foreach ($reports as $report) {
                             $periods = $periods->add(Period::make($report->start_time, $report->end_time, Precision::MINUTE()));
