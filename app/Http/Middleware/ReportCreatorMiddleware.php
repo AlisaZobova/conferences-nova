@@ -17,8 +17,7 @@ class ReportCreatorMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        $permission = ($request['report']->user_id === Auth::id() && Auth::user()->hasRole('Announcer'))
-            || Auth::user()->hasRole('Admin');
+        $permission = $request['report']->user_id === Auth::id() && Auth::user()->hasRole('Announcer');
 
         if (!$permission) {
             abort(403);

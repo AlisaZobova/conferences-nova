@@ -19,7 +19,7 @@ class ConferenceCreatorMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        $permission = $request['conference']->user_id === Auth::id() || Auth::user()->hasRole('Admin');
+        $permission = $request['conference']->user_id === Auth::id();
 
         if (!$permission) {
             abort(403);

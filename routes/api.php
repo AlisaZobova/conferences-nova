@@ -87,20 +87,6 @@ Route::middleware(['auth', 'role:Announcer|Listener'])->group(
     }
 );
 
-Route::middleware(['auth', 'role:Admin'])->group(
-    function () {
-        Route::post('/categories', [ CategoryController::class, 'store' ]);
-        Route::patch('/categories/{category}', [ CategoryController::class, 'update' ]);
-        Route::delete('/categories/{category}', [ CategoryController::class, 'destroy' ]);
-        Route::get('/conferences/export', [ ConferenceController::class, 'export' ]);
-        Route::get('/reports/export', [ ReportController::class, 'export' ]);
-        Route::get('/reports/{report}/export-comments', [ CommentController::class, 'export' ]);
-        Route::get('/conferences/{conference}/export-listeners', [ ConferenceController::class, 'exportListeners' ]);
-        Route::get('/meetings', [ ZoomMeetingController::class, 'index']);
-    }
-);
-
-
 Route::group(
     ['middleware' => ['permission:update conference', 'creator']],
     function () {
