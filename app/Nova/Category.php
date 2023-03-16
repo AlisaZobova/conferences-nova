@@ -108,23 +108,18 @@ class Category extends Resource
     {
         $ids = [];
         $category = \App\Models\Category::find($request->get('resourceId'));
-        $parents = $category ? $category->parents : [];
+        $children = $category ? $category->children : [];
 
-        if ($parents) {
-
-            array_push($ids, $parents['id']);
-
-            while ($parents['parent']) {
-                $parents = $parents['parent'];
-                array_push($ids, $parents['id']);
+        while(count($children) > 0){
+            $nextChildren = [];
+            foreach ($children as $child) {
+                array_push($ids, $child['id']);
+                $nextChildren = array_merge($nextChildren, $child->children->all());
             }
-
-            return $query->whereIn('id', $ids);
+            $children = $nextChildren;
         }
 
-        else {
-            return $query;
-        }
+        return $query->whereNotIn('id', $ids);
 
     }
 }
