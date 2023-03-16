@@ -33,6 +33,7 @@
     "dependencies": {
         "intl-tel-input": "^17.0.19",
         "jquery": "^3.6.3",
-        "popper.js": "^1.16.1"
+        "popper.js": "^1.16.1",
+        "vue": "2.6"
     }
 }
