@@ -64,7 +64,7 @@ class Conference extends Resource
 
             BelongsTo::make('Country')->nullable()->onlyOnForms(),
 
-            BelongsTo::make('Category')->nullable()->withoutTrashed(),
+            BelongsTo::make('Category')->nullable()->exceptOnForms(),
         ];
     }
 
