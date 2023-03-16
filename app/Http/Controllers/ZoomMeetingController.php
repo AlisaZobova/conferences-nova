@@ -42,7 +42,7 @@ class ZoomMeetingController extends Controller
     public function toZoomTimeFormat(string $dateTime)
     {
         $date = new \DateTime($dateTime);
-        return $date->format('Y-m-d\TH:i:s');
+        return $date->format('Y-m-d\TH:i:s\Z');
     }
 
     public function getDuration(Report $report)
