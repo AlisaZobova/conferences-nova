@@ -11,7 +11,7 @@ class Comment extends Model
 
     protected $guarded = false;
 
-    protected $casts = ['publication_date' => 'date'];
+    protected $casts = ['publication_date' => 'datetime'];
 
     public function user()
     {
