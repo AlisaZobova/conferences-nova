@@ -4,13 +4,11 @@ namespace App\Nova;
 
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
-use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Zobova\CategoriesTree\CategoriesTree;
-use Zobova\CategoryTree\CategoryTree;
 
 class Category extends Resource
 {
@@ -58,7 +56,7 @@ class Category extends Resource
             })->onlyOnIndex(),
             CategoriesTree::make('Children')
                 ->withMeta(['tree' => ['root' => true, 'children' => $this->children]])
-                ->exceptOnForms()
+                ->onlyOnDetail()
         ];
     }
 
@@ -104,5 +102,29 @@ class Category extends Resource
     public function actions(NovaRequest $request)
     {
         return [];
+    }
+
+    public static function relatableCategories(NovaRequest $request, $query)
+    {
+        $ids = [];
+        $category = \App\Models\Category::find($request->get('resourceId'));
+        $parents = $category ? $category->parents : [];
+
+        if ($parents) {
+
+            array_push($ids, $parents['id']);
+
+            while ($parents['parent']) {
+                $parents = $parents['parent'];
+                array_push($ids, $parents['id']);
+            }
+
+            return $query->whereIn('id', $ids);
+        }
+
+        else {
+            return $query;
+        }
+
     }
 }
