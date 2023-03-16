@@ -117,4 +117,9 @@ class User extends Resource
     {
         return [];
     }
+
+    public function title()
+    {
+        return $this->firstname . ' ' . $this->lastname;
+    }
 }

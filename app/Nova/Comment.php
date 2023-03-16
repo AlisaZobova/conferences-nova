@@ -3,6 +3,7 @@
 namespace App\Nova;
 
 use Illuminate\Http\Request;
+use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
@@ -45,9 +46,7 @@ class Comment extends Resource
     {
         return [
             ID::make()->sortable(),
-            Text::make('User', function() {
-                return $this->user->firstname . ' ' . $this->user->lastname;
-            }),
+            BelongsTo::make('User'),
             Date::make('Publication Date'),
             Text::make('Content', function () {
                 return strip_tags($this->content);
