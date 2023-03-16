@@ -5,13 +5,24 @@ namespace App\Observers;
 use App\Http\Controllers\ZoomMeetingController;
 use App\Mail\AdminDeleteReport;
 use App\Mail\AdminUpdateReport;
+use App\Mail\JoinAnnouncer;
+use App\Mail\JoinListener;
 use App\Mail\UpdateReportTime;
+use App\Models\Conference;
 use App\Models\Report;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 
 class ReportObserver
 {
+
+    public function created(Report $report) {
+        if (Auth::user()->hasRole('Admin')) {
+            $report->user->joinedConferences()->attach($report->conference);
+            $this->sendEmailJoinUser($report->conference, $report->user);
+        }
+    }
 
     /**
      * Handle the Report "updated" event.
@@ -19,6 +30,18 @@ class ReportObserver
     public function updated(Report $report): void
     {
         if (Auth::user()->hasRole('Admin')) {
+
+            if ($report->getOriginal('user_id') != $report->user_id ||
+                $report->getOriginal('conference_id') != $report->conference_id) {
+
+                $conference = Conference::find($report->getOriginal('conference_id'));
+                $user = User::find($report->getOriginal('user_id'));
+
+                $user->joinedConferences()->detach($conference);
+                $report->user->joinedConferences()->attach($report->conference);
+                $this->sendEmailJoinUser($report->conference, $report->user);
+            }
+
             Mail::to($report->user->email)
                 ->send(new AdminUpdateReport($report->conference, $report, $report->getOriginal('topic')));
         }
@@ -84,5 +107,26 @@ class ReportObserver
             cache()->forget('meetings');
         }
         return $success;
+    }
+
+    public function sendEmailJoinUser(Conference $conference, $user) {
+        $joinedUsers = $conference->users;
+
+        if($user->hasRole('Announcer')) {
+            $report = $conference->reports->where('user_id', $user->id)->first();
+            foreach ($joinedUsers as $joinedUser) {
+                if($joinedUser->hasRole('Listener')) {
+                    Mail::to($joinedUser->email)->send(new JoinAnnouncer($conference, $report, $user));
+                }
+            }
+        }
+
+        else if($user->hasRole('Listener')) {
+            foreach ($joinedUsers as $joinedUser) {
+                if($joinedUser->hasRole('Announcer')) {
+                    Mail::to($joinedUser->email)->send(new JoinListener($conference, $user));
+                }
+            }
+        }
     }
 }

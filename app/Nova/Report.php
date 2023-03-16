@@ -142,9 +142,9 @@ class Report extends Resource
                         }
                     },
                     function ($attribute, $value, $fail) use ($request){
-                        $conf_date = $this->conference ? $this->conference->conf_date :
-                            ($request->get('conference') ?
-                                \App\Models\Conference::find($request->get('conference'))->conf_date : null);
+                        $conf_date = $request->get('conference') ?
+                            \App\Models\Conference::find($request->get('conference'))->conf_date :
+                            ($this->conference ? $this->conference->conf_date : null);
                         if ($conf_date && date('d.m.Y', strtotime($value)) != $conf_date->format('d.m.Y')) {
                             $fail(
                                 'The report must be on the day of the conference - ' .
@@ -172,9 +172,9 @@ class Report extends Resource
                         }
                     },
                     function ($attribute, $value, $fail) use ($request){
-                        $conf_date = $this->conference ? $this->conference->conf_date :
-                            ($request->get('conference') ?
-                                \App\Models\Conference::find($request->get('conference'))->conf_date : null);
+                        $conf_date = $request->get('conference') ?
+                            \App\Models\Conference::find($request->get('conference'))->conf_date :
+                            ($this->conference ? $this->conference->conf_date : null);
                         if ($conf_date && date('d.m.Y', strtotime($value)) != $conf_date->format('d.m.Y')) {
                             $fail(
                                 'The report must be on the day of the conference - ' .
