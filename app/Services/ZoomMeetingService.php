@@ -46,7 +46,7 @@ class ZoomMeetingService
     public static function toZoomTimeFormat(string $dateTime)
     {
         $date = new \DateTime($dateTime);
-        return $date->format('Y-m-d\TH:i:s\Z');
+        return $date->format('Y-m-d\TH:i:s');
     }
 
     public static function getDuration(Report $report)
