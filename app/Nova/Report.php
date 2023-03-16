@@ -61,6 +61,7 @@ class Report extends Resource
                 ->rules('required', 'max:255', 'min:2'),
 
             DateTime::make('Start Time')
+                ->sortable()
                 ->rules(
                     'required', 'after_or_equal:' . now(),
                     function ($attribute, $value, $fail) use ($request) {

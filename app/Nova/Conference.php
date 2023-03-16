@@ -52,6 +52,7 @@ class Conference extends Resource
                 ->rules('required', 'max:255', 'min:2'),
 
             Date::make('Date', 'conf_date')
+                ->sortable()
                 ->rules('required', 'after_or_equal:' . now()),
 
             GoogleMaps::make('Address')->hideFromIndex(),
