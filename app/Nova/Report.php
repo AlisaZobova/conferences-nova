@@ -192,13 +192,13 @@ class Report extends Resource
                 'Start Url', function () {
                     return $this->meeting ? $this->meeting->start_url : '';
                 }
-            )->exceptOnForms(),
+            )->onlyOnDetail(),
 
             CopyField::make(
                 'Join Url', function () {
                     return $this->meeting ? $this->meeting->join_url : '';
                 }
-            )->exceptOnForms(),
+            )->onlyOnDetail(),
 
             BelongsTo::make('Category')->exceptOnForms(),
         ];
