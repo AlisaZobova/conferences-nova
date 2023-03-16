@@ -138,4 +138,9 @@ class Announcer extends Resource
             $q->where('name', 'Announcer');
         });
     }
+
+    public function title()
+    {
+        return $this->firstname . ' ' . $this->lastname;
+    }
 }

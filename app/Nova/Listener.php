@@ -137,4 +137,9 @@ class Listener extends Resource
             $q->where('name', 'Listener');
         });
     }
+
+    public function title()
+    {
+        return $this->firstname . ' ' . $this->lastname;
+    }
 }

@@ -53,13 +53,7 @@ class Report extends Resource
         return [
             ID::make()->sortable(),
 
-            Text::make(
-                'Announcer', function () {
-                    return $this->user ? $this->user->firstname . ' ' . $this->user->lastname : '';
-                }
-            )->exceptOnForms(),
-
-            BelongsTo::make('Announcer', 'user')->rules('required')->onlyOnForms(),
+            BelongsTo::make('Announcer', 'user')->rules('required'),
 
             BelongsTo::make('Conference')->withoutTrashed(),
 
