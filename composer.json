@@ -22,7 +22,6 @@
         "pusher/pusher-php-server": "^7.2",
         "spatie/laravel-permission": "^5.7",
         "spatie/period": "^2.3",
-        "trinityrank/google-map-with-autocomplete": "^1.0",
         "zobova/categories-tree": "*",
         "zobova/copy-field": "*",
         "zobova/google-maps": "*",
