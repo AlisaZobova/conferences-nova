@@ -2,6 +2,7 @@
 
 namespace App\Nova;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules;
 use Laravel\Nova\Fields\BelongsTo;
@@ -146,5 +147,17 @@ class Listener extends Resource
     public function title()
     {
         return $this->firstname . ' ' . $this->lastname;
+    }
+
+    /**
+     * Register a callback to be called after the resource is created.
+     *
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @return void
+     */
+    public static function afterCreate(NovaRequest $request, Model $model)
+    {
+        $model->assignRole('Listener');
     }
 }
