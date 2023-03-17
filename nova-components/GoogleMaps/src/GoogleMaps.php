@@ -59,7 +59,7 @@ class GoogleMaps extends Field
     {
         if($request->input($attribute)) {
             foreach ($request->input($attribute) as $attr => $data) {
-                if ($data != 'null') {
+                if ($data != 'undefined') {
                     $model->setAttribute($attr, $data);
                 }
             }
