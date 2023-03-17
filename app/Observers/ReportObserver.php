@@ -10,6 +10,7 @@ use App\Mail\UpdateReportTime;
 use App\Models\Conference;
 use App\Models\Report;
 use App\Models\User;
+use App\Models\ZoomMeeting;
 use App\Services\ZoomMeetingService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -103,6 +104,12 @@ class ReportObserver
         $success = ZoomMeetingService::update($report->meeting->id, $report);
         if($success) {
             cache()->forget('meetings');
+            $meeting = ZoomMeeting::find($report->meeting->id);
+            $meetingFields = [
+                'topic' => $report->topic,
+                'start_time' => $report->start_time,
+            ];
+            $meeting->update($meetingFields);
         }
         return $success;
     }
