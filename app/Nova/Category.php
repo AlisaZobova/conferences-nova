@@ -52,7 +52,19 @@ class Category extends Resource
                 ->withoutTrashed()
                 ->nullable(),
             Number::make('Children', function () {
-                return count($this->children);
+                $count = 0;
+                $children = $this->children;
+
+                while(count($children) > 0){
+                    $nextChildren = [];
+                    foreach ($children as $child) {
+                        $count += 1;
+                        $nextChildren = array_merge($nextChildren, $child->children->all());
+                    }
+                    $children = $nextChildren;
+                }
+
+                return $count;
             })->onlyOnIndex(),
             CategoriesTree::make('Children')
                 ->withMeta(['tree' => ['root' => true, 'children' => $this->children]])
