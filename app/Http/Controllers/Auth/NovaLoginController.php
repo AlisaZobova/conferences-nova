@@ -7,37 +7,25 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-class AuthenticatedSessionController extends Controller
+class NovaLoginController extends Controller
 {
 
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request)
+    public function login(LoginRequest $request)
     {
         $user = User::where('email', $request->get('email'))->first();
 
-        if ($user && !$user->hasRole('Admin')) {
+        if ($user && $user->hasRole('Admin')) {
             $request->authenticate();
             $request->session()->regenerate();
-            return Auth::user()->load('roles', 'conferences', 'joinedConferences', 'reports', 'favorites');
+            return Auth::user();
 
         }
 
         else {
             return abort(403);
         }
-    }
-
-    /**
-     * Destroy an authenticated session.
-     */
-    public function destroy(Request $request)
-    {
-        Auth::guard('web')->logout();
-
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
     }
 }
