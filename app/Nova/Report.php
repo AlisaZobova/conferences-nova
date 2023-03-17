@@ -9,6 +9,7 @@ use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Oneduo\NovaTimeField\Time;
 use Spatie\Period\Period;
 use Spatie\Period\PeriodCollection;
 use Spatie\Period\Precision;
@@ -60,17 +61,33 @@ class Report extends Resource
             Text::make('Topic')
                 ->rules('required', 'max:255', 'min:2'),
 
-            DateTime::make('Start Time')
+            DateTime::make('Start Time')->exceptOnForms(),
+
+            Time::make('Start Time')
+                ->withMeta(['value' => $this->start_time ? $this->start_time->format('H:i') : ''])
+                ->onlyOnForms()
+                ->fillUsing(
+                function ($request, $model) {
+                    if(!empty($request->conference)) {
+                        $conf_date = \App\Models\Conference::find($request->conference)->conf_date;
+                        $model['start_time'] = $conf_date->format('Y-m-d') . ' ' . $request->start_time . ':00';
+                    }
+                }
+            )
                 ->sortable()
                 ->rules(
-                    'required', 'after_or_equal:' . now(),
+                    'required',
                     function ($attribute, $value, $fail) use ($request) {
                         $periods = new PeriodCollection();
                         $reportId = $this->id;
-                        $start=strtotime($value . ' UTC');
-                        $start_time = date("Y-m-d H:i:s", $start);
-                        $end = strtotime($request->get('end_time') . ' UTC');
-                        $end_time = date("Y-m-d H:i:s", $end);
+
+                        if(!empty($request->conference)) {
+                            $conf_date = \App\Models\Conference::find($request->conference)->conf_date;
+                        }
+
+                        $start_time = $conf_date->format('Y-m-d') . ' ' . $value . ':00';
+                        $end_time = $conf_date->format('Y-m-d') . ' ' . $request->get('end_time') . ':00';
+
 
                         if ($reportId) {
                             $reports = \App\Models\Report::where('conference_id', $request->get('conference'), 'and')
@@ -137,20 +154,21 @@ class Report extends Resource
                             $fail('Conference starts at 8:00.');
                         }
                     },
-                    function ($attribute, $value, $fail) use ($request){
-                        $conf_date = $request->get('conference') ?
-                            \App\Models\Conference::find($request->get('conference'))->conf_date :
-                            ($this->conference ? $this->conference->conf_date : null);
-                        if ($conf_date && date('d.m.Y', strtotime($value)) != $conf_date->format('d.m.Y')) {
-                            $fail(
-                                'The report must be on the day of the conference - ' .
-                                $conf_date->format('d.m.Y') . '.'
-                            );
-                        }
-                    }
                 ),
 
-            DateTime::make('End Time')
+            DateTime::make('End Time')->exceptOnForms(),
+
+            Time::make('End Time')
+                ->withMeta(['value' => $this->end_time ? $this->end_time->format('H:i') : ''])
+                ->onlyOnForms()
+                ->fillUsing(
+                function ($request, $model) {
+                    if(!empty($request->conference)) {
+                        $conf_date = \App\Models\Conference::find($request->conference)->conf_date;
+                        $model['end_time'] = $conf_date->format('Y-m-d') . ' ' . $request->end_time . ':00';
+                    }
+                }
+            )
                 ->rules(
                     'required', 'after:start_time',
                     function ($attribute, $value, $fail) use ($request) {
@@ -167,17 +185,6 @@ class Report extends Resource
                             $fail('The conference lasts until 20:00.');
                         }
                     },
-                    function ($attribute, $value, $fail) use ($request){
-                        $conf_date = $request->get('conference') ?
-                            \App\Models\Conference::find($request->get('conference'))->conf_date :
-                            ($this->conference ? $this->conference->conf_date : null);
-                        if ($conf_date && date('d.m.Y', strtotime($value)) != $conf_date->format('d.m.Y')) {
-                            $fail(
-                                'The report must be on the day of the conference - ' .
-                                $conf_date->format('d.m.Y') . '.'
-                            );
-                        }
-                    }
                 ),
             Text::make('Description')->nullable(),
             File::make('Presentation')->onlyOnDetail(),
