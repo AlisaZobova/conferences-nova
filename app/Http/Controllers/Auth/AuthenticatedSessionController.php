@@ -7,6 +7,8 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+
 class AuthenticatedSessionController extends Controller
 {
 
@@ -25,7 +27,11 @@ class AuthenticatedSessionController extends Controller
         }
 
         else {
-            return abort(403);
+            throw ValidationException::withMessages(
+                [
+                    'email' => trans('auth.failed'),
+                ]
+            );
         }
     }
 
