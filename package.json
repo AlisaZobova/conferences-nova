@@ -1,0 +1,43 @@
+{
+    "private": true,
+    "scripts": {
+        "dev": "npm run development",
+        "development": "mix",
+        "watch": "mix watch",
+        "watch-poll": "mix watch -- --watch-options-poll=1000",
+        "hot": "mix watch --hot",
+        "prod": "npm run production",
+        "production": "mix --production",
+        "build-copy-field": "cd nova-components/CopyField && npm run dev",
+        "build-copy-field-prod": "cd nova-components/CopyField && npm run prod",
+        "build-phone-input": "cd nova-components/PhoneInput && npm run dev",
+        "build-phone-input-prod": "cd nova-components/PhoneInput && npm run prod",
+        "build-google-maps": "cd nova-components/GoogleMaps && npm run dev",
+        "build-google-maps-prod": "cd nova-components/GoogleMaps && npm run prod",
+        "build-category-tree": "cd nova-components/CategoryTree && npm run dev",
+        "build-category-tree-prod": "cd nova-components/CategoryTree && npm run prod"
+    },
+    "devDependencies": {
+        "@popperjs/core": "^2.11.6",
+        "@tailwindcss/forms": "^0.5.2",
+        "alpinejs": "^3.4.2",
+        "autoprefixer": "^10.4.2",
+        "axios": "^1.1.2",
+        "bootstrap": "^4.5.0",
+        "laravel-mix": "^6.0.49",
+        "lodash": "^4.17.19",
+        "postcss": "^8.4.6",
+        "resolve-url-loader": "^5.0.0",
+        "sass": "^1.56.1",
+        "sass-loader": "^12.1.0",
+        "tailwindcss": "^3.1.0",
+        "vue-loader": "^15.9.8",
+        "vue-template-compiler": "^2.7.14"
+    },
+    "dependencies": {
+        "intl-tel-input": "^17.0.19",
+        "jquery": "^3.6.3",
+        "popper.js": "^1.16.1",
+        "vue": "2.6"
+    }
+}
