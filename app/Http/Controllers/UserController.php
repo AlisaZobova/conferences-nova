@@ -8,6 +8,8 @@ use App\Mail\JoinListener;
 use App\Models\Conference;
 use App\Models\Report;
 use App\Models\User;
+use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -26,6 +28,19 @@ class UserController extends Controller
         $request->user()->update($data);
 
         return $request->user()->load('roles', 'conferences', 'joinedConferences', 'reports', 'favorites');
+    }
+
+    public function subscribe(Request $request) {
+
+        try {
+            Auth::user()
+                ->newSubscription($request['plan']['name'], $request['plan']['stripe_plan'])
+                ->create($request['paymentMethodId']);
+            return response('Success', 200);
+
+        } catch (Exception $e) {
+            return response(['message' => $e->getMessage()], 500);
+        }
     }
 
     public function join(Conference $conference)

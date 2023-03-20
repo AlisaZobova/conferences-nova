@@ -31,6 +31,8 @@ class RegisteredUserController extends Controller
 
         $user->assignRole($data['type']);
 
+        $user->newSubscription('Free', 'price_1MncnEDyniFMFJ6WGZNAwRff')->create();
+
         return $user->load('roles', 'conferences', 'joinedConferences', 'reports', 'favorites');
     }
 

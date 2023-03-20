@@ -55,6 +55,7 @@ Route::middleware('auth')->group(
         Route::post('/reports/{report}/delete-favorite', [ UserController::class, 'deleteFavorite' ]);
         Route::get('/plans', [PlanController::class, 'index']);
         Route::get('/plans/{plan}', [PlanController::class, 'show']);
+        Route::post('/subscription', [UserController::class, 'subscribe']);
     }
 );
 
