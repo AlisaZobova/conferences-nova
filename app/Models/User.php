@@ -30,6 +30,8 @@ class User extends Authenticatable
         'country_id'
     ];
 
+    protected $with = ['subscriptions'];
+
     /**
      * The attributes that should be hidden for serialization.
      *
