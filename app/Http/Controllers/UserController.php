@@ -34,6 +34,10 @@ class UserController extends Controller
     public function subscribe(Request $request) {
 
         try {
+            $subscriptions = Auth::user()->subscriptions()->where('stripe_status', 'active')->get();
+            foreach ($subscriptions as $subscription) {
+                $subscription->cancel();
+            }
             Auth::user()
                 ->newSubscription($request['plan']['name'], $request['plan']['stripe_plan'])
                 ->create($request['paymentMethodId']);
@@ -46,6 +50,10 @@ class UserController extends Controller
     public function unsubscribe(Request $request) {
 
         try {
+            $subscriptions = Auth::user()->subscriptions()->where('stripe_status', 'active')->get();
+            foreach ($subscriptions as $subscription) {
+                $subscription->cancel();
+            }
             Auth::user()
                 ->newSubscription('Free', 'price_1MncnEDyniFMFJ6WGZNAwRff')
                 ->create();

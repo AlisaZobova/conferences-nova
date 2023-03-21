@@ -30,8 +30,6 @@ class User extends Authenticatable
         'country_id'
     ];
 
-    protected $with = ['subscriptions'];
-
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -52,7 +50,7 @@ class User extends Authenticatable
         'birthdate' => 'date'
     ];
 
-    protected $appends = ['credits', 'has_card'];
+    protected $appends = ['credits', 'has_card', 'active_subscription'];
 
     public function country()
     {
@@ -109,5 +107,9 @@ class User extends Authenticatable
 
     public function getHasCardAttribute() {
         return $this->hasPaymentMethod('card');
+    }
+
+    public function getActiveSubscriptionAttribute() {
+        return $this->subscriptions()->where('stripe_status', 'active')->first();
     }
 }
