@@ -52,6 +52,8 @@ class User extends Authenticatable
         'birthdate' => 'date'
     ];
 
+    protected $appends = ['credits'];
+
     public function country()
     {
         return $this->belongsTo(Country::class, 'country_id', 'id');
@@ -92,5 +94,16 @@ class User extends Authenticatable
     {
         $model_object->user()->associate(Auth::user());
         $model_object->save();
+    }
+
+    public function getCreditsAttribute() {
+        $plan = Plan::where('name', $this->subscriptions[0]->name)->first();
+        if ($plan->joins_per_month) {
+            $credits = $plan->joins_per_month - count($this->joinedConferences);
+            return $credits >= 0 ? $credits : 0;
+        }
+        else {
+            return 'unlimited';
+        }
     }
 }

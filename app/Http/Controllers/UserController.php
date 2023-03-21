@@ -6,6 +6,7 @@ use App\Http\Requests\ProfileUpdateRequest;
 use App\Mail\JoinAnnouncer;
 use App\Mail\JoinListener;
 use App\Models\Conference;
+use App\Models\Plan;
 use App\Models\Report;
 use App\Models\User;
 use Exception;
@@ -42,11 +43,29 @@ class UserController extends Controller
             return response(['message' => $e->getMessage()], 500);
         }
     }
+    public function unsubscribe(Request $request) {
+
+        try {
+            Auth::user()
+                ->newSubscription('Free', 'price_1MncnEDyniFMFJ6WGZNAwRff')
+                ->create();
+            return response('Success', 200);
+
+        } catch (Exception $e) {
+            return response(['message' => $e->getMessage()], 500);
+        }
+    }
 
     public function join(Conference $conference)
     {
-        Auth::user()->joinedConferences()->attach($conference);
-        $this->sendEmailJoinUser($conference, Auth::user());
+        $plan = Plan::where('name', Auth::user()->subscriptions[0]->name)->first();
+        if ($plan->joins_per_month && count(Auth::user()->joinedConferences) >= $plan->joins_per_month) {
+            return response(['errors' => ['plan' => 'The available monthly joins for the current plan have run out!']], 500);
+        } else {
+            Auth::user()->joinedConferences()->attach($conference);
+            $this->sendEmailJoinUser($conference, Auth::user());
+            return response('', 200);
+        }
     }
 
     public function cancel(Conference $conference)

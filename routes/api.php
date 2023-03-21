@@ -56,6 +56,7 @@ Route::middleware('auth')->group(
         Route::get('/plans', [PlanController::class, 'index']);
         Route::get('/plans/{plan}', [PlanController::class, 'show']);
         Route::post('/subscription', [UserController::class, 'subscribe']);
+        Route::post('/cancel-subscription', [UserController::class, 'unsubscribe']);
     }
 );
 
