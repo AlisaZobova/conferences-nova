@@ -52,7 +52,7 @@ class User extends Authenticatable
         'birthdate' => 'date'
     ];
 
-    protected $appends = ['credits'];
+    protected $appends = ['credits', 'has_card'];
 
     public function country()
     {
@@ -105,5 +105,9 @@ class User extends Authenticatable
         else {
             return 'unlimited';
         }
+    }
+
+    public function getHasCardAttribute() {
+        return $this->hasPaymentMethod('card');
     }
 }
