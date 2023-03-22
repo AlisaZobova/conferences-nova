@@ -28,12 +28,7 @@ class UserController extends Controller
         }
         $request->user()->update($data);
 
-        return $request->user()->load(
-            'roles',
-            'conferences:id,user_id',
-            'joinedConferences:id,user_id',
-            'favorites'
-        );
+        return $request->user()->loadRelationships();
     }
 
     public function subscribe(Request $request) {
@@ -94,12 +89,7 @@ class UserController extends Controller
 
     public function getUser(User $user)
     {
-        return $user->load(
-            'roles',
-            'conferences:id,user_id',
-            'joinedConferences:id,user_id',
-            'favorites'
-        );
+        return $user->loadRelationships();
     }
 
     public function sendEmailJoinUser(Conference $conference, $user) {

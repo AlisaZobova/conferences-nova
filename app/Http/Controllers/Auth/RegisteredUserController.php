@@ -33,12 +33,7 @@ class RegisteredUserController extends Controller
 
         $user->newSubscription('Free', 'price_1MncnEDyniFMFJ6WGZNAwRff')->create();
 
-        return $user->load(
-            'roles',
-            'conferences:id,user_id',
-            'joinedConferences:id,user_id',
-            'favorites'
-        );
+        return $user->loadRelationships();
     }
 
     public function store_additional(RegisterAdditionalRequest $request, User $user)
@@ -54,12 +49,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return $user->load(
-            'roles',
-            'conferences:id,user_id',
-            'joinedConferences:id,user_id',
-            'favorites'
-        );
+        return $user->loadRelationships();
     }
 
 }

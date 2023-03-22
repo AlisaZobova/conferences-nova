@@ -117,4 +117,13 @@ class User extends Authenticatable
     public function getActiveSubscriptionAttribute() {
         return $this->subscriptions()->where('stripe_status', 'active')->first();
     }
+
+    public function loadRelationships() {
+        return $this->load(
+            'roles',
+            'conferences:id,user_id',
+            'joinedConferences:id,user_id',
+            'favorites'
+        );
+    }
 }
