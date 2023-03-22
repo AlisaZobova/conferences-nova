@@ -160,5 +160,6 @@ class Announcer extends Resource
     public static function afterCreate(NovaRequest $request, Model $model)
     {
         $model->assignRole('Announcer');
+        $model->newSubscription('Free', 'price_1MncnEDyniFMFJ6WGZNAwRff')->create();
     }
 }

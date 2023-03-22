@@ -159,5 +159,6 @@ class Listener extends Resource
     public static function afterCreate(NovaRequest $request, Model $model)
     {
         $model->assignRole('Listener');
+        $model->newSubscription('Free', 'price_1MncnEDyniFMFJ6WGZNAwRff')->create();
     }
 }
