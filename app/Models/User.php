@@ -95,18 +95,23 @@ class User extends Authenticatable
     }
 
     public function getCreditsAttribute() {
-        $plan = Plan::where('name', $this->subscriptions[0]->name)->first();
-        if ($plan->joins_per_month) {
-            $credits = $plan->joins_per_month - count($this->joinedConferences);
-            return $credits >= 0 ? $credits : 0;
+        if (count($this->subscriptions) > 0) {
+            $plan = Plan::where('name', $this->subscriptions[0]->name)->first();
+            if ($plan->joins_per_month) {
+                $credits = $plan->joins_per_month - count($this->joinedConferences);
+                return $credits >= 0 ? $credits : 0;
+            }
+            else {
+                return 'unlimited';
+            }
         }
         else {
-            return 'unlimited';
+            return false;
         }
     }
 
     public function getHasCardAttribute() {
-        return $this->hasPaymentMethod('card');
+        return $this->hasStripeId() && $this->hasPaymentMethod('card');
     }
 
     public function getActiveSubscriptionAttribute() {
