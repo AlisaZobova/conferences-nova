@@ -33,7 +33,12 @@ class RegisteredUserController extends Controller
 
         $user->newSubscription('Free', 'price_1MncnEDyniFMFJ6WGZNAwRff')->create();
 
-        return $user->load('roles', 'conferences', 'joinedConferences', 'reports', 'favorites');
+        return $user->load(
+            'roles',
+            'conferences:id,user_id',
+            'joinedConferences:id,user_id',
+            'favorites'
+        );
     }
 
     public function store_additional(RegisterAdditionalRequest $request, User $user)
@@ -49,7 +54,12 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return $user->load('roles', 'conferences', 'joinedConferences', 'reports', 'favorites');
+        return $user->load(
+            'roles',
+            'conferences:id,user_id',
+            'joinedConferences:id,user_id',
+            'favorites'
+        );
     }
 
 }
