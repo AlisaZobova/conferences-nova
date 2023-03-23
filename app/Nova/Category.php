@@ -120,7 +120,7 @@ class Category extends Resource
 
     public static function relatableCategories(NovaRequest $request, $query)
     {
-        $ids = [$request->get('resourceId')];
+        $ids = $request->get('resourceId') ? [$request->get('resourceId'),] : [];
         $category = \App\Models\Category::find($request->get('resourceId'));
         $children = $category ? $category->children : [];
 
