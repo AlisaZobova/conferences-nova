@@ -262,4 +262,10 @@ class Report extends Resource
             ExportComments::make()->onlyOnDetail()
         ];
     }
+
+    public static function relatableConferences(NovaRequest $request, $query)
+    {
+        return $query->whereDate('conf_date', '>=', date("Y-m-d"));
+
+    }
 }
