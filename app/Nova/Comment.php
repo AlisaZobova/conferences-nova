@@ -48,9 +48,7 @@ class Comment extends Resource
             ID::make()->sortable(),
             BelongsTo::make('User'),
             DateTime::make('Publication Date'),
-            Text::make('Content', function () {
-                return strip_tags($this->content);
-            }),
+            Text::make('Content')->asHtml()->onlyOnDetail(),
         ];
     }
 
