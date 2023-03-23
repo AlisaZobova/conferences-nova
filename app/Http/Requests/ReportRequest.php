@@ -109,7 +109,7 @@ class ReportRequest extends FormRequest
                     }
                 },
                 function ($attribute, $value, $fail) {
-                    if (date('H', strtotime($value)) >= 20 && date('m', strtotime($value)) > 0) {
+                    if (date('H', strtotime($value)) >= 20 && date('i', strtotime($value)) > 0) {
                         $fail('The conference lasts until 20:00.');
                     }
                 },
