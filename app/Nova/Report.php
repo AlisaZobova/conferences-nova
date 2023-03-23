@@ -38,7 +38,7 @@ class Report extends Resource
      * @var array
      */
     public static $search = [
-        'id',
+        'id', 'topic'
     ];
 
     public static $with = ['user', 'conference', 'meeting', 'category'];
