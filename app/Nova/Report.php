@@ -2,6 +2,8 @@
 
 namespace App\Nova;
 
+use App\Nova\Actions\ExportComments;
+use App\Nova\Actions\ExportReports;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\DateTime;
@@ -253,6 +255,9 @@ class Report extends Resource
      */
     public function actions(NovaRequest $request)
     {
-        return [];
+        return [
+            ExportReports::make()->onlyOnIndex(),
+            ExportComments::make()->onlyOnDetail()
+        ];
     }
 }

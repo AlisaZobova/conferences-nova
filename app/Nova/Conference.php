@@ -2,6 +2,8 @@
 
 namespace App\Nova;
 
+use App\Nova\Actions\ExportConferences;
+use App\Nova\Actions\ExportListeners;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Date;
@@ -110,6 +112,9 @@ class Conference extends Resource
      */
     public function actions(NovaRequest $request)
     {
-        return [];
+        return [
+            ExportConferences::make()->onlyOnIndex(),
+            ExportListeners::make()->onlyOnDetail()
+        ];
     }
 }
