@@ -39,55 +39,57 @@ class ReportRequest extends FormRequest
                     $periods = new PeriodCollection();
                     $end_time = $this->request->get('end_time');
                     $start_time = $this->request->get('start_time');
-                    $reportId = $this->request->get('id');
-                    if ($reportId) {
-                        $reports = Report::where('conference_id', $this->request->get('conference_id'), 'and')->where('id', '!=', $reportId)->get();
-                    }
-                    else {
-                        $reports = Report::where('conference_id', $this->request->get('conference_id'))->get();
-                    }
-                    foreach ($reports as $report) {
-                        $periods = $periods->add(Period::make($report->start_time, $report->end_time, Precision::MINUTE()));
-                    }
-                    $boundaries = new PeriodCollection(Period::make(date('Y-m-d', strtotime($start_time)) . ' 08:00:00', date('Y-m-d', strtotime($start_time)) . ' 20:00:00', Precision::MINUTE()));
-                    $gaps = $boundaries->subtract($periods);
-                    $period = new PeriodCollection(Period::make($start_time, $end_time, Precision::MINUTE()));
-                    if (!$periods->isEmpty() && !$period->overlapAll($periods)->isEmpty()) {
-                        $closestAfter = null;
-                        $closestBefore = null;
-                        $closestPeriod = null;
-                        $start_date = new \DateTime($start_time);
-                        foreach ($gaps as $gap) {
-                            if ($gap->startsAfter($start_date) || $gap->startsAt($start_date) || $gap->contains($start_date)) {
-                                $closestAfter = $gap;
-                                break;
-                            }
-                            else if ($gap->startsBefore($start_date)) {
-                                $closestBefore = $gap;
-                            }
+                    if ($end_time > $start_time) {
+                        $reportId = $this->request->get('id');
+                        if ($reportId) {
+                            $reports = Report::where('conference_id', $this->request->get('conference_id'), 'and')->where('id', '!=', $reportId)->get();
                         }
-
-                        if ($closestAfter && $closestBefore) {
-                            if ($closestBefore->end()->getTimestamp() - $period[0]->start()->getTimestamp() < $closestAfter->start()->getTimestamp() - $period[0]->start()->getTimestamp()) {
-                                $closestPeriod = $closestBefore;
+                        else {
+                            $reports = Report::where('conference_id', $this->request->get('conference_id'))->get();
+                        }
+                        foreach ($reports as $report) {
+                            $periods = $periods->add(Period::make($report->start_time, $report->end_time, Precision::MINUTE()));
+                        }
+                        $boundaries = new PeriodCollection(Period::make(date('Y-m-d', strtotime($start_time)) . ' 08:00:00', date('Y-m-d', strtotime($start_time)) . ' 20:00:00', Precision::MINUTE()));
+                        $gaps = $boundaries->subtract($periods);
+                        $period = new PeriodCollection(Period::make($start_time, $end_time, Precision::MINUTE()));
+                        if (!$periods->isEmpty() && !$period->overlapAll($periods)->isEmpty()) {
+                            $closestAfter = null;
+                            $closestBefore = null;
+                            $closestPeriod = null;
+                            $start_date = new \DateTime($start_time);
+                            foreach ($gaps as $gap) {
+                                if ($gap->startsAfter($start_date) || $gap->startsAt($start_date) || $gap->contains($start_date)) {
+                                    $closestAfter = $gap;
+                                    break;
+                                }
+                                else if ($gap->startsBefore($start_date)) {
+                                    $closestBefore = $gap;
+                                }
                             }
-                            else {
+
+                            if ($closestAfter && $closestBefore) {
+                                if ($closestBefore->end()->getTimestamp() - $period[0]->start()->getTimestamp() < $closestAfter->start()->getTimestamp() - $period[0]->start()->getTimestamp()) {
+                                    $closestPeriod = $closestBefore;
+                                }
+                                else {
+                                    $closestPeriod = $closestAfter;
+                                }
+                            }
+
+                            else if ($closestAfter && !$closestBefore) {
                                 $closestPeriod = $closestAfter;
                             }
+
+                            else if (!$closestAfter && $closestBefore) {
+                                $closestPeriod = $closestBefore;
+                            }
+
+                            $closestStart = $closestPeriod->start()->format('H:i');
+                            $closestEnd = $closestPeriod->end()->format('H:i');
+
+                            $fail('This time is busy. The closest available period is from ' . $closestStart . ' to ' . $closestEnd . '.');
                         }
-
-                        else if ($closestAfter && !$closestBefore) {
-                            $closestPeriod = $closestAfter;
-                        }
-
-                        else if (!$closestAfter && $closestBefore) {
-                            $closestPeriod = $closestBefore;
-                        }
-
-                        $closestStart = $closestPeriod->start()->format('H:i');
-                        $closestEnd = $closestPeriod->end()->format('H:i');
-
-                        $fail('This time is busy. The closest available period is from ' . $closestStart . ' to ' . $closestEnd . '.');
                     }
                 },
                 function ($attribute, $value, $fail) {
