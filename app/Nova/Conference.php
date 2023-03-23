@@ -32,7 +32,7 @@ class Conference extends Resource
      * @var array
      */
     public static $search = [
-        'id',
+        'id', 'title'
     ];
 
     public static $with = ['country', 'category'];
