@@ -36,6 +36,8 @@ class Comment extends Resource
 
     public static $with = ['user'];
 
+    public static $group = 'Reports';
+
     /**
      * Get the fields displayed by the resource.
      *

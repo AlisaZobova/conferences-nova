@@ -39,6 +39,8 @@ class Conference extends Resource
 
     public static $with = ['country', 'category'];
 
+    public static $group = 'Conferences';
+
     /**
      * Get the fields displayed by the resource.
      *

@@ -40,6 +40,8 @@ class Listener extends Resource
 
     public static $with = ['country'];
 
+    public static $group = 'Users';
+
     /**
      * Get the fields displayed by the resource.
      *

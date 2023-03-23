@@ -32,10 +32,12 @@ class Category extends Resource
      * @var array
      */
     public static $search = [
-        'id',
+        'id', 'name'
     ];
 
     public static $with = ['parent', 'children'];
+
+    public static $group = 'Conferences';
 
     /**
      * Get the fields displayed by the resource.

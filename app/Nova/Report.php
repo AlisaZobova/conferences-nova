@@ -45,6 +45,8 @@ class Report extends Resource
 
     public static $with = ['user', 'conference', 'meeting', 'category'];
 
+    public static $group = 'Reports';
+
     /**
      * Get the fields displayed by the resource.
      *
