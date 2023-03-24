@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ZoomMeetingController;
+use App\Http\Controllers\PlanController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CommentController;
@@ -53,6 +53,10 @@ Route::middleware('auth')->group(
         Route::get('/categories/{category}', [ CategoryController::class, 'show' ]);
         Route::post('/reports/{report}/add-favorite', [ UserController::class, 'addFavorite' ]);
         Route::post('/reports/{report}/delete-favorite', [ UserController::class, 'deleteFavorite' ]);
+        Route::get('/plans', [PlanController::class, 'index']);
+        Route::get('/plans/{plan}', [PlanController::class, 'show']);
+        Route::post('/subscription', [UserController::class, 'subscribe']);
+        Route::post('/cancel-subscription', [UserController::class, 'unsubscribe']);
     }
 );
 

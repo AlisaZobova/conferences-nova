@@ -7,12 +7,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, Billable;
 
     /**
      * The attributes that are mass assignable.
@@ -48,6 +49,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'birthdate' => 'date'
     ];
+
+    protected $appends = ['credits', 'has_card', 'active_subscription'];
 
     public function country()
     {
@@ -89,5 +92,38 @@ class User extends Authenticatable
     {
         $model_object->user()->associate(Auth::user());
         $model_object->save();
+    }
+
+    public function getCreditsAttribute() {
+        if (count($this->subscriptions) > 0) {
+            $plan = Plan::where('name', $this->subscriptions[0]->name)->first();
+            if ($plan->joins_per_month) {
+                $credits = $plan->joins_per_month - count($this->joinedConferences);
+                return $credits >= 0 ? $credits : 0;
+            }
+            else {
+                return 'unlimited';
+            }
+        }
+        else {
+            return false;
+        }
+    }
+
+    public function getHasCardAttribute() {
+        return $this->hasStripeId() && $this->hasPaymentMethod('card');
+    }
+
+    public function getActiveSubscriptionAttribute() {
+        return $this->subscriptions()->where('stripe_status', 'active')->first();
+    }
+
+    public function loadRelationships() {
+        return $this->load(
+            'roles',
+            'conferences:id,user_id',
+            'joinedConferences:id,user_id',
+            'favorites'
+        );
     }
 }

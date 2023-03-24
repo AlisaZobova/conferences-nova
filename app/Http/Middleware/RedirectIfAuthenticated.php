@@ -27,7 +27,7 @@ class RedirectIfAuthenticated
                     $request->session()->invalidate();
                 }
                 else {
-                    return Auth::user()->load('roles', 'conferences', 'joinedConferences', 'reports', 'favorites');
+                    return Auth::user()->loadRelationships();
                 }
             }
         }

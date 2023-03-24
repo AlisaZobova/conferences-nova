@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Models\User;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\Storage;
@@ -25,6 +26,15 @@ class Kernel extends ConsoleKernel
                 }
             }
         })->everyFifteenMinutes();
+
+        $schedule->call(function () {
+            $users = User::all();
+            foreach ($users as $user) {
+                if (!$user->getActiveSubscriptionAttribute() && !$user->hasRole('Admin')) {
+                    $user->newSubscription('Free', 'price_1MncnEDyniFMFJ6WGZNAwRff')->create();
+                }
+            }
+        })->daily();
 
     }
 

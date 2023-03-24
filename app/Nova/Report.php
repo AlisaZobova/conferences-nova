@@ -2,6 +2,8 @@
 
 namespace App\Nova;
 
+use App\Nova\Actions\ExportComments;
+use App\Nova\Actions\ExportReports;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\DateTime;
@@ -38,10 +40,12 @@ class Report extends Resource
      * @var array
      */
     public static $search = [
-        'id',
+        'id', 'topic'
     ];
 
     public static $with = ['user', 'conference', 'meeting', 'category'];
+
+    public static $group = 'Reports';
 
     /**
      * Get the fields displayed by the resource.
@@ -182,7 +186,7 @@ class Report extends Resource
                         }
                     },
                     function ($attribute, $value, $fail) {
-                        if (date('H', strtotime($value)) >= 20 && date('m', strtotime($value)) > 0) {
+                        if (date('H', strtotime($value)) >= 20 && date('i', strtotime($value)) > 0) {
                             $fail('The conference lasts until 20:00.');
                         }
                     },
@@ -253,6 +257,15 @@ class Report extends Resource
      */
     public function actions(NovaRequest $request)
     {
-        return [];
+        return [
+            ExportReports::make()->onlyOnIndex(),
+            ExportComments::make()->onlyOnDetail()
+        ];
+    }
+
+    public static function relatableConferences(NovaRequest $request, $query)
+    {
+        return $query->whereDate('conf_date', '>=', date("Y-m-d"));
+
     }
 }

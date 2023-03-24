@@ -20,4 +20,15 @@ class ConferenceObserver
             }
         }
     }
+
+    public function updated(Conference $conference) {
+        if ($conference->conf_date != $conference->getOriginal('conf_date')) {
+            foreach ($conference->reports as $report) {
+                $report_time = [
+                    'start_time' => substr($conference->conf_date, 0, 10) . substr($report->start_time, 10, 16),
+                    'end_time' => substr($conference->conf_date, 0, 10) . substr($report->end_time, 10, 16)];
+                $report->update($report_time);
+            }
+        }
+    }
 }

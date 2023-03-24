@@ -22,8 +22,7 @@ class AuthenticatedSessionController extends Controller
         if ($user && !$user->hasRole('Admin')) {
             $request->authenticate();
             $request->session()->regenerate();
-            return Auth::user()->load('roles', 'conferences', 'joinedConferences', 'reports', 'favorites');
-
+            return Auth::user()->loadRelationships();
         }
 
         else {

@@ -41,6 +41,8 @@ class Announcer extends Resource
 
     public static $with = ['country'];
 
+    public static $group = 'Users';
+
     /**
      * Get the fields displayed by the resource.
      *
@@ -160,5 +162,6 @@ class Announcer extends Resource
     public static function afterCreate(NovaRequest $request, Model $model)
     {
         $model->assignRole('Announcer');
+        $model->newSubscription('Free', 'price_1MncnEDyniFMFJ6WGZNAwRff')->create();
     }
 }

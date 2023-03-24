@@ -2,6 +2,8 @@
 
 namespace App\Nova;
 
+use App\Nova\Actions\ExportConferences;
+use App\Nova\Actions\ExportListeners;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Date;
@@ -32,10 +34,12 @@ class Conference extends Resource
      * @var array
      */
     public static $search = [
-        'id',
+        'id', 'title'
     ];
 
     public static $with = ['country', 'category'];
+
+    public static $group = 'Conferences';
 
     /**
      * Get the fields displayed by the resource.
@@ -54,7 +58,8 @@ class Conference extends Resource
             Date::make('Date', 'conf_date')
                 ->min(now())
                 ->sortable()
-                ->rules('required', 'after_or_equal:' . now()),
+                ->rules('required', 'after_or_equal:' .
+                    date('d.m.Y', strtotime('-1 day', strtotime(today())))),
 
             GoogleMaps::make('Address')->hideFromIndex(),
 
@@ -109,6 +114,9 @@ class Conference extends Resource
      */
     public function actions(NovaRequest $request)
     {
-        return [];
+        return [
+            ExportConferences::make()->onlyOnIndex(),
+            ExportListeners::make()->onlyOnDetail()
+        ];
     }
 }
