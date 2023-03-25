@@ -62,8 +62,16 @@ class UserController extends Controller
 
     public function join(Conference $conference)
     {
-        $plan = Plan::where('name', Auth::user()->subscriptions[0]->name)->first();
-        if ($plan->joins_per_month && count(Auth::user()->joinedConferences) >= $plan->joins_per_month) {
+        $subscription = Auth::user()->getActiveSubscriptionAttribute();
+
+        $plan = Plan::where('name', $subscription->name)->first();
+
+        $joins = Auth::user()->joinedConferences()
+            ->whereDate('conference_user.created_at', '>=', date('Y-m-d H:i:s', strtotime('-1 month', $subscription->ends_at)))
+            ->whereDate('conference_user.created_at', '<=', date('Y-m-d H:i:s', $subscription->ends_at))
+            ->count();
+
+        if ($plan->joins_per_month && $joins >= $plan->joins_per_month) {
             return response(['errors' => ['plan' => 'The available monthly joins for the current plan have run out!']], 500);
         } else {
             Auth::user()->joinedConferences()->attach($conference);

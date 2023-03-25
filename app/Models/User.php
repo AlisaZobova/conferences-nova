@@ -75,7 +75,7 @@ class User extends Authenticatable
 
     public function joinedConferences()
     {
-        return $this->belongsToMany(Conference::class);
+        return $this->belongsToMany(Conference::class)->withTimestamps();
     }
 
     public function favorites()
