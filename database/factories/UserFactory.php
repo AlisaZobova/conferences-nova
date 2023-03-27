@@ -40,6 +40,21 @@ class UserFactory extends Factory
         $role = array_rand(['Listener' => '', 'Announcer' => '']);
         $user = $this->model::create($this->definition());
         $user->assignRole($role);
+        return $user;
+    }
+
+    public function create_listener($attributes = [], ?Model $parent = null)
+    {
+        $user = $this->model::create($this->definition());
+        $user->assignRole('Listener');
+        return $user;
+    }
+
+    public function create_announcer($attributes = [], ?Model $parent = null)
+    {
+        $user = $this->model::create($this->definition());
+        $user->assignRole('Announcer');
+        return $user;
     }
 
     /**

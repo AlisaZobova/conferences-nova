@@ -21,7 +21,9 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             ConferenceSeeder::class,
             PermissionSeeder::class,
-            ModelPermissionsSeeder::class
+            ModelPermissionsSeeder::class,
+            PlanSeeder::class,
+            SubscriptionSeeder::class
             ]
         );
     }
