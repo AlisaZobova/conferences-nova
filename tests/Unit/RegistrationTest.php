@@ -44,7 +44,8 @@ class RegistrationTest extends TestCase
         $this->assertDatabaseHas('users', ['email' => $user['email']]);
     }
 
-    public function test_fail_password_confirmation() {
+    public function test_fail_password_confirmation()
+    {
         $user = [
             'email' => fake()->unique()->safeEmail(),
             'password' => '11111111',
@@ -61,7 +62,8 @@ class RegistrationTest extends TestCase
         $this->assertDatabaseMissing('users', ['email' => $user['email']]);
     }
 
-    public function test_fail_existing_email() {
+    public function test_fail_existing_email()
+    {
         $user = [
             'email' => 'admin@example.com',
             'password' => '11111111',
@@ -76,7 +78,8 @@ class RegistrationTest extends TestCase
         $response->assertInvalid(['email']);
     }
 
-    public function test_no_access_if_auth() {
+    public function test_no_access_if_auth()
+    {
         $newUser = [
             'email' => fake()->unique()->safeEmail(),
             'password' => '11111111',
@@ -94,7 +97,8 @@ class RegistrationTest extends TestCase
         $this->assertDatabaseMissing('users', ['email' => $newUser['email']]);
     }
 
-    public function test_additional_registration() {
+    public function test_additional_registration()
+    {
         $user = [
             'email' => fake()->unique()->safeEmail(),
             'password' => '11111111',
@@ -121,7 +125,8 @@ class RegistrationTest extends TestCase
         $this->assertAuthenticated();
     }
 
-    public function test_invalid_birthdate() {
+    public function test_invalid_birthdate()
+    {
         $user = [
             'email' => fake()->unique()->safeEmail(),
             'password' => '11111111',

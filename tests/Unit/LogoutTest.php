@@ -7,7 +7,8 @@ use Tests\TestCase;
 
 class LogoutTest extends TestCase
 {
-    public function test_successful_logout () {
+    public function test_successful_logout()
+    {
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)
@@ -16,7 +17,8 @@ class LogoutTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_fail_logout_when_no_auth () {
+    public function test_fail_logout_when_no_auth()
+    {
         $response = $this->json('POST', 'api/logout');
 
         $response->assertStatus(401);
