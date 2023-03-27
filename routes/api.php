@@ -55,7 +55,6 @@ Route::middleware('auth')->group(
         Route::post('/reports/{report}/delete-favorite', [ UserController::class, 'deleteFavorite' ]);
         Route::get('/plans', [PlanController::class, 'index']);
         Route::get('/plans/{plan}', [PlanController::class, 'show']);
-        Route::post('/subscription', [UserController::class, 'subscribe']);
         Route::post('/cancel-subscription', [UserController::class, 'unsubscribe']);
     }
 );
@@ -88,6 +87,7 @@ Route::middleware(['auth', 'role:Announcer|Listener'])->group(
     function () {
         Route::post('/conferences/{conference}/join', [ UserController::class, 'join' ]);
         Route::post('/conferences/{conference}/cancel', [ UserController::class, 'cancel' ]);
+        Route::post('/subscription', [UserController::class, 'subscribe']);
     }
 );
 
