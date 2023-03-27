@@ -9,8 +9,7 @@ Route::middleware(['guest', 'web'])->group(
 
         Route::post('register', [RegisteredUserController::class, 'store']);
 
-        Route::post('register/{user}', [RegisteredUserController::class, 'store_additional'])
-        ->name('store_additional');
+        Route::post('register/{user}', [RegisteredUserController::class, 'store_additional']);
 
         Route::post('login', [AuthenticatedSessionController::class, 'store']);
     }
