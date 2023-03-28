@@ -9,7 +9,7 @@ use Spatie\Period\Period;
 use Spatie\Period\PeriodCollection;
 use Spatie\Period\Precision;
 
-class ReportRequest extends FormRequest
+class ReportUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,19 +28,19 @@ class ReportRequest extends FormRequest
      */
     public function rules()
     {
+        $report = Report::find($this->route('report'))->first();
+
         return [
-            'topic' => ['string', 'required', 'min:2', 'max:255'],
-            'user_id' => 'integer|required',
-            'conference_id' => 'integer|required',
+            'topic' => ['string', 'nullable', 'min:2', 'max:255'],
             'start_time' => [
-                'required',
+                'nullable',
                 'after_or_equal:' . now(),
-                function ($attribute, $value, $fail) {
+                function ($attribute, $value, $fail) use ($report) {
                     $periods = new PeriodCollection();
-                    $end_time = $this->request->get('end_time');
-                    $start_time = $this->request->get('start_time');
+                    $end_time = $this->request->get('end_time') ? $this->request->get('end_time') : $report->end_time;
+                    $start_time = $this->request->get('start_time') ? $this->request->get('start_time') : $report->start_time;
                     if ($end_time > $start_time) {
-                        $reports = Report::where('conference_id', $this->request->get('conference_id'))->get();
+                        $reports = Report::where('conference_id', $report->conference_id, 'and')->where('id', '!=', $report->id)->get();
                         foreach ($reports as $report) {
                             $periods = $periods->add(Period::make($report->start_time, $report->end_time, Precision::MINUTE()));
                         }
@@ -93,10 +93,11 @@ class ReportRequest extends FormRequest
                 },
             ],
             'end_time' => [
-                'required',
+                'nullable',
                 'after:start_time',
-                function ($attribute, $value, $fail) {
-                    $start = new \DateTime($this->request->get('start_time'));
+                function ($attribute, $value, $fail) use ($report){
+                    $start_time = $this->request->get('start_time') ? $this->request->get('start_time') : $report->start_time;
+                    $start = new \DateTime($start_time);
                     $end = new \DateTime($value);
                     $timeDiff = $end->diff($start);
                     $minutes = $timeDiff->h * 60 + $timeDiff->i;

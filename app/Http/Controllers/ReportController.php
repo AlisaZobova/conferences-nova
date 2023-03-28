@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ReportRequest;
+use App\Http\Requests\ReportUpdateRequest;
 use App\Jobs\ProcessReportsExport;
 use App\Models\Report;
 use App\Services\ZoomMeetingService;
@@ -96,7 +97,7 @@ class ReportController extends Controller
         return $report->load('user', 'conference', 'comments', 'category', 'meeting');
     }
 
-    public function update(Report $report, ReportRequest $request)
+    public function update(Report $report, ReportUpdateRequest $request)
     {
         $data = $request->validated();
 

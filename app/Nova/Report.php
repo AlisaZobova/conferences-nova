@@ -193,7 +193,7 @@ class Report extends Resource
                 ),
             Text::make('Description')->nullable(),
             File::make('Presentation')->onlyOnDetail(),
-            File::make('Presentation')->rules('mimes:ppx,pptx', 'max:10240')->nullable()
+            File::make('Presentation')->rules('nullable', 'mimes:ppx,pptx', 'max:10240')
                 ->storeAs(
                     function (Request $request) {
                         return time() . '_' . $request->presentation->getClientOriginalName();
