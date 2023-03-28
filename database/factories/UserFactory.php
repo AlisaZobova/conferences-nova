@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Country;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +23,10 @@ class UserFactory extends Factory
      */
     public function definition()
     {
+        $countries = Country::all(['id'])->toArray();
+        $index = array_rand($countries);
+        $country = $countries[$index]['id'];
+
         return [
             'email' => fake()->unique()->safeEmail(),
             'firstname' => fake()->firstname(),
@@ -29,7 +34,7 @@ class UserFactory extends Factory
             'password' => Hash::make(12345678),
             'birthdate' =>  fake()->date(),
             'phone' => fake()->phoneNumber(),
-            'country_id' => fake()->numberBetween(1, 10),
+            'country_id' => $country,
             'email_verified_at' => now(),
             'remember_token' => Str::random(10),
         ];
