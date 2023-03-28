@@ -48,7 +48,6 @@ Route::middleware('auth')->group(
         Route::get('/reports/{report}/download', [ ReportController::class, 'download' ]);
         Route::get('reports/{report}/comments', [ CommentController::class, 'index' ]);
         Route::get('/comments/{comment}', [ CommentController::class, 'show' ]);
-        Route::post('/comments', [ CommentController::class, 'store' ]);
         Route::get('/categories', [ CategoryController::class, 'index' ]);
         Route::get('/categories/{category}', [ CategoryController::class, 'show' ]);
         Route::post('/reports/{report}/add-favorite', [ UserController::class, 'addFavorite' ]);
@@ -85,6 +84,7 @@ Route::middleware(['auth', 'report_creator'])->group(
 
 Route::middleware(['auth', 'role:Announcer|Listener'])->group(
     function () {
+        Route::post('/comments', [ CommentController::class, 'store' ]);
         Route::post('/conferences/{conference}/join', [ UserController::class, 'join' ]);
         Route::post('/conferences/{conference}/cancel', [ UserController::class, 'cancel' ]);
         Route::post('/subscription', [UserController::class, 'subscribe']);
