@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Mail\NewReportComment;
-use App\Models\Conference;
+use App\Models\Report;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -38,15 +38,15 @@ class AddReportCommentTest extends TestCase
 
     public function test_fail_adding_by_admin()
     {
-        $user = User::whereHas(
+        $admin = User::whereHas(
             'roles', function ($q) {
                 $q->where('name', 'Admin');
             }
         )->first();
 
-        $comment = $this->getCommentData($user);
+        $comment = $this->getCommentData($admin);
 
-        $response = $this->actingAs($user)->json('POST', 'api/comments', $comment);
+        $response = $this->actingAs($admin)->json('POST', 'api/comments', $comment);
 
         $response->assertStatus(403);
     }
@@ -66,52 +66,31 @@ class AddReportCommentTest extends TestCase
     {
         $user = User::factory()->create();
 
+        $report = Report::factory()->create();
+
         $comment = [
             'content' => null,
             'publication_date' => now(),
             'user_id' => $user->id,
-            'report_id' => $this->getCreatedReportId()
+            'report_id' => $report->id
         ];
 
         $response = $this->actingAs($user)->json('POST', 'api/comments', $comment);
 
         $response->assertStatus(422);
 
-        $response->assertInvalid('content');
-    }
-
-    public function getCreatedReportId()
-    {
-        $conference = Conference::factory()->create();
-        $announcer = User::factory()->create_announcer();
-
-        $report = [
-            'user_id' => $announcer->id,
-            'conference_id' => $conference->id,
-            'topic' => fake()->word(),
-            'start_time' => $conference->conf_date->format('Y-m-d') . ' 12:00:00',
-            'end_time' => $conference->conf_date->format('Y-m-d') . ' 12:30:00',
-            'description' => '',
-            'presentation' => null,
-            'online' => 'false'
-        ];
-
-        $response = $this->actingAs($announcer)
-            ->json('POST', 'api/reports', $report);
-
-        $this->actingAs($announcer)
-            ->json('POST', 'api/logout');
-
-        return $response->original['id'];
+        $response->assertInvalid(['content' => 'The content field is required.']);
     }
 
     public function getCommentData($user)
     {
+        $report = Report::factory()->create();
+
         return [
             'content' => fake()->sentence(),
             'publication_date' => now(),
             'user_id' => $user->id,
-            'report_id' => $this->getCreatedReportId()
+            'report_id' => $report->id
         ];
     }
 }
