@@ -36,8 +36,9 @@ class ReportFactory extends Factory
             'user_id' => $user,
             'conference_id' => $conferenceId,
             'topic' => fake()->word(),
-            'start_time' => substr($conference['conf_date'], 0, 10) . ' ' . fake()->time(),
-            'end_time' => substr($conference['conf_date'], 0, 10) . ' ' . fake()->time(),
+            'start_time' => substr($conference['conf_date'], 0, 10) . ' ' . now()->format('H:i:s'),
+            'end_time' => substr($conference['conf_date'], 0, 10) . ' ' .
+                date('H:i:s', strtotime('+30 minutes', strtotime(now()))),
             'description' => fake()->sentence(),
             'presentation' => null,
         ];
