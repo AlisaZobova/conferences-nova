@@ -12,29 +12,32 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param \Illuminate\Console\Scheduling\Schedule $schedule
+     * @param  \Illuminate\Console\Scheduling\Schedule $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->call(function () {
-            $delimeter = PHP_OS_FAMILY === 'Windows' ? '\\' : '/';
-            $files = glob(public_path('export') . $delimeter . "*.csv");
-            foreach ($files as $file) {
-                if (filemtime($file) < now()->subMinutes(15)->getTimestamp()) {
-                    unlink($file);
+        $schedule->call(
+            function () {
+                $files = Storage::disk('export')->allFiles();
+                foreach ($files as $file) {
+                    if (Storage::disk('export')->lastModified($file) < now()->subMinutes(15)->getTimestamp()) {
+                        Storage::disk('export')->delete($file);
+                    }
                 }
             }
-        })->everyFifteenMinutes();
+        )->everyFifteenMinutes();
 
-        $schedule->call(function () {
-            $users = User::all();
-            foreach ($users as $user) {
-                if (!$user->getActiveSubscriptionAttribute() && !$user->hasRole('Admin')) {
-                    $user->newSubscription('Free', 'price_1MncnEDyniFMFJ6WGZNAwRff')->create();
+        $schedule->call(
+            function () {
+                $users = User::all();
+                foreach ($users as $user) {
+                    if (!$user->getActiveSubscriptionAttribute() && !$user->hasRole('Admin')) {
+                        $user->newSubscription('Free', 'price_1MncnEDyniFMFJ6WGZNAwRff')->create();
+                    }
                 }
             }
-        })->daily();
+        )->daily();
 
     }
 
