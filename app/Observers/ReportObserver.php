@@ -19,7 +19,7 @@ class ReportObserver
 {
 
     public function created(Report $report) {
-        if (Auth::user()->hasRole('Admin')) {
+        if (Auth::user() && Auth::user()->hasRole('Admin')) {
             $report->user->joinedConferences()->attach($report->conference);
             $this->sendEmailJoinUser($report->conference, $report->user);
         }
