@@ -29,10 +29,8 @@ class ReportSearchTest extends TestCase
             $response->original->contains($reports['li']) &&
             $response->original->contains($reports['like'])
         );
-        $this->assertFalse(
-            $response->original->contains($reports['kernel']) &&
-            $response->original->contains($reports['test'])
-        );
+        $this->assertFalse($response->original->contains($reports['kernel']));
+        $this->assertFalse($response->original->contains($reports['test']));
     }
 
     public function test_search_without_result()

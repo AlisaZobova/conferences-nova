@@ -28,10 +28,8 @@ class ConferenceSearchTest extends TestCase
             $response->original->contains($conferences['li']) &&
             $response->original->contains($conferences['like'])
         );
-        $this->assertFalse(
-            $response->original->contains($conferences['kernel']) &&
-            $response->original->contains($conferences['test'])
-        );
+        $this->assertFalse($response->original->contains($conferences['kernel']));
+        $this->assertFalse($response->original->contains($conferences['test']));
     }
 
     public function test_search_without_result()
