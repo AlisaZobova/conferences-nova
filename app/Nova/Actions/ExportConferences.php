@@ -5,6 +5,7 @@ namespace App\Nova\Actions;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Nova\Actions\Action;
 use Laravel\Nova\Fields\ActionFields;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -23,12 +24,10 @@ class ExportConferences extends Action
     public function handle(ActionFields $fields, Collection $models)
     {
         $fileName = 'conferences-' . time() . '.csv';
-        $delimeter = PHP_OS_FAMILY === 'Windows' ? '\\' : '/';
-        $path = public_path('export') . $delimeter . $fileName;
+        $file = fopen('php://temp/maxmemory:' . (5*1024*1024), 'r+');
 
         $columns = array('Title', 'Date', 'Address', 'Country', 'Reports', 'Listeners');
 
-        $file = fopen($path, 'w');
         fputcsv($file, $columns);
 
         foreach ($models as $conference) {
@@ -49,7 +48,11 @@ class ExportConferences extends Action
             fputcsv($file, $row);
         }
 
-        fclose($file);
+        rewind($file);
+
+        $content = stream_get_contents($file);
+
+        Storage::disk('export')->put($fileName, $content);
 
         return Action::download('/export/' . $fileName, $fileName);
     }

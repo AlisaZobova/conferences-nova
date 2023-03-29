@@ -5,6 +5,7 @@ namespace App\Nova\Actions;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Nova\Actions\Action;
 use Laravel\Nova\Fields\ActionFields;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -23,14 +24,13 @@ class ExportComments extends Action
     public function handle(ActionFields $fields, Collection $models)
     {
         $fileName = 'report-'. $models[0]->topic .'-comments' . time() . '.csv';
-        $delimeter = PHP_OS_FAMILY === 'Windows' ? '\\' : '/';
-        $path = public_path('export') . $delimeter . $fileName;
+
+        $file = fopen('php://temp/maxmemory:' . (5*1024*1024), 'r+');
 
         $comments = $models[0]->comments;
 
         $columns = array('User', 'Date', 'Content');
 
-        $file = fopen($path, 'w');
         fputcsv($file, $columns);
 
         foreach ($comments as $comment) {
@@ -42,7 +42,11 @@ class ExportComments extends Action
             fputcsv($file, $row);
         }
 
-        fclose($file);
+        rewind($file);
+
+        $content = stream_get_contents($file);
+
+        Storage::disk('export')->put($fileName, $content);
 
         return Action::download('/export/' . $fileName, $fileName);
     }
