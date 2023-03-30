@@ -101,8 +101,16 @@ class User extends Authenticatable
         if ($subscription) {
 
             $joins = self::joinedConferences()
-                ->whereDate('conference_user.created_at', '>=', date('Y-m-d H:i:s', strtotime('-1 month', $subscription->ends_at?->timestamp)))
-                ->whereDate('conference_user.created_at', '<=', date('Y-m-d H:i:s', $subscription->ends_at?->timestamp))
+                ->whereDate(
+                    'conference_user.created_at',
+                    '>=',
+                    $this->getMonthsAgo($subscription->ends_at?:now(), 1)
+                )
+                ->whereDate(
+                    'conference_user.created_at',
+                    '<=',
+                    $subscription->ends_at ?: now()
+                )
                 ->count();
 
             $plan = Plan::where('name', $this->subscriptions[0]->name)->first();
@@ -138,5 +146,17 @@ class User extends Authenticatable
             'joinedConferences:id,user_id',
             'favorites'
         );
+    }
+
+    public static function getMonthsAgo($date, int $n): string
+    {
+        $date = new \DateTime($date);
+        $day  = $date->format('j');
+        $date->modify('first day of this month')->modify('-' . $n . ' months');
+        if ($day > $date->format('t')) {
+            $day = $date->format('t');
+        }
+        $date->setDate($date->format('Y'), $date->format('m'), $day);
+        return $date->format('Y-m-d');
     }
 }

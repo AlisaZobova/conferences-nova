@@ -67,8 +67,16 @@ class UserController extends Controller
         $plan = Plan::where('name', $subscription->name)->first();
 
         $joins = Auth::user()->joinedConferences()
-            ->whereDate('conference_user.created_at', '>=', date('Y-m-d H:i:s', strtotime('-1 month', $subscription->ends_at?->timestamp)))
-            ->whereDate('conference_user.created_at', '<=', date('Y-m-d H:i:s', $subscription->ends_at?->timestamp))
+            ->whereDate(
+                'conference_user.created_at',
+                '>=',
+                $this->getMonthsAgo($subscription->ends_at?:now(), 1)
+            )
+            ->whereDate(
+                'conference_user.created_at',
+                '<=',
+                $subscription->ends_at ?: now()
+            )
             ->count();
 
         if ($plan->joins_per_month && $joins >= $plan->joins_per_month) {
@@ -120,5 +128,17 @@ class UserController extends Controller
                 }
             }
         }
+    }
+
+    public static function getMonthsAgo($date, int $n): string
+    {
+        $date = new \DateTime($date);
+        $day  = $date->format('j');
+        $date->modify('first day of this month')->modify('-' . $n . ' months');
+        if ($day > $date->format('t')) {
+            $day = $date->format('t');
+        }
+        $date->setDate($date->format('Y'), $date->format('m'), $day);
+        return $date->format('Y-m-d');
     }
 }
