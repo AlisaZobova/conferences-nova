@@ -15,8 +15,11 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        for ($i = 1; $i <= 10; $i++) {
-            User::factory()->create();
+        for ($i = 1; $i <= 5; $i++) {
+            User::factory()->create_listener();
+        }
+        for ($i = 1; $i <= 5; $i++) {
+            User::factory()->create_announcer();
         }
     }
 }
