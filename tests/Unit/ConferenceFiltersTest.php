@@ -43,10 +43,10 @@ class ConferenceFiltersTest extends TestCase
 
     public function test_no_old_conferences_in_result()
     {
+        $oldConference = Conference::factory()->create(['conf_date' => '2020-12-12']);
+
         $response = $this->actingAs($this->getUser())->json('GET', 'api/conferences?from=2023-12-12');
         $response->assertStatus(200);
-
-        $oldConference = Conference::factory()->create(['conf_date' => '2020-12-12']);
 
         $this->assertTrue(count($response['data']) === 4);
 

@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Models\Conference;
 use App\Models\Report;
 use App\Models\User;
 use Database\Seeders\ReportTestSeeder;
@@ -40,6 +41,24 @@ class ReportSearchTest extends TestCase
         $response = $this->actingAs($this->getUser())->json('GET', 'api/reports/search?topic=aaa');
         $response->assertStatus(200);
         $this->assertTrue(count($response->original) === 0);
+    }
+
+    public function test_no_old_reports_in_result()
+    {
+        $conference = Conference::factory()->create(['title' => 'lips', 'conf_date' => '2020-12-12']);
+
+        $oldReport = Report::factory()->create(['conference_id' => $conference->id, 'topic' => 'Lips']);
+
+        $response = $this->actingAs($this->getUser())->json('GET', 'api/reports/search?topic=li');
+        $response->assertStatus(200);
+        $this->assertTrue(count($response->original) === 2);
+        $this->assertTrue(
+            $response->original->contains($this->reports['li']) &&
+            $response->original->contains($this->reports['like'])
+        );
+        $this->assertFalse($response->original->contains($this->reports['kernel']));
+        $this->assertFalse($response->original->contains($this->reports['test']));
+        $this->assertFalse($response->original->contains($oldReport));
     }
 
     public function test_fail_no_auth()

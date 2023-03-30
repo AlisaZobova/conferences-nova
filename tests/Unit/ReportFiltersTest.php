@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Models\Category;
+use App\Models\Conference;
 use App\Models\Report;
 use App\Models\User;
 use Database\Seeders\ReportTestSeeder;
@@ -98,6 +99,27 @@ class ReportFiltersTest extends TestCase
             in_array($this->reports['first_category']->id, array_column($response['data'], 'id')) &&
             in_array($this->reports['second_category']->id, array_column($response['data'], 'id'))
         );
+    }
+
+    public function test_no_old_reports_in_result()
+    {
+        $conference = Conference::factory()->create(['title' => 'Lips', 'conf_date' => '2020-12-12']);
+
+        $oldReport = Report::factory()
+            ->create(
+                [
+                    'conference_id' => $conference->id,
+                    'start_time' => substr($conference['conf_date'], 0, 10) . ' 12:00:00',
+                    'end_time' => substr($conference['conf_date'], 0, 10) . ' 12:30:00',
+                ]
+            );
+
+        $response = $this->actingAs($this->getUser())->json('GET', 'api/reports?from=09:00:00');
+        $response->assertStatus(200);
+        $this->assertTrue(count($response['data']) === 7);
+
+        $this->assertFalse(in_array($this->reports['start_8']->id, array_column($response['data'], 'id')));
+        $this->assertFalse(in_array($oldReport->id, array_column($response['data'], 'id')));
     }
 
     public function test_filter_without_result()
