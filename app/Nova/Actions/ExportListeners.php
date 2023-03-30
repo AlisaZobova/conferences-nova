@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Nova\Actions\Action;
 use Laravel\Nova\Fields\ActionFields;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -17,24 +18,23 @@ class ExportListeners extends Action
     /**
      * Perform the action on the given models.
      *
-     * @param  \Laravel\Nova\Fields\ActionFields  $fields
-     * @param  \Illuminate\Support\Collection  $models
+     * @param  \Laravel\Nova\Fields\ActionFields $fields
+     * @param  \Illuminate\Support\Collection    $models
      * @return mixed
      */
     public function handle(ActionFields $fields, Collection $models)
     {
         $fileName = 'conference-'. $models[0]->title .'-listeners' . time() . '.csv';
-        $delimeter = PHP_OS_FAMILY === 'Windows' ? '\\' : '/';
-        $path = public_path('export') . $delimeter . $fileName;
+        $file = fopen('php://temp/maxmemory:' . (5*1024*1024), 'r+');
 
         $listeners = $models[0]->users()->whereHas(
-            'roles', function($q){
-            $q->where('name', 'Listener');
-        })->get();
+            'roles', function ($q) {
+                $q->where('name', 'Listener');
+            }
+        )->get();
 
         $columns = array('Firstname', 'Lastname', 'Birthdate', 'Country', 'Phone', 'Email');
 
-        $file = fopen($path, 'w');
         fputcsv($file, $columns);
 
         foreach ($listeners as $listener) {
@@ -49,7 +49,11 @@ class ExportListeners extends Action
             fputcsv($file, $row);
         }
 
-        fclose($file);
+        rewind($file);
+
+        $content = stream_get_contents($file);
+
+        Storage::disk('export')->put($fileName, $content);
 
         return Action::download('/export/' . $fileName, $fileName);
     }
@@ -57,7 +61,7 @@ class ExportListeners extends Action
     /**
      * Get the fields available on the action.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function fields(NovaRequest $request)

@@ -42,7 +42,7 @@ class Category extends Resource
     /**
      * Get the fields displayed by the resource.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function fields(NovaRequest $request)
@@ -53,21 +53,23 @@ class Category extends Resource
             BelongsTo::make('Parent', 'parent', Category::class)
                 ->withoutTrashed()
                 ->nullable(),
-            Number::make('Children', function () {
-                $count = 0;
-                $children = $this->children;
+            Number::make(
+                'Children', function () {
+                    $count = 0;
+                    $children = $this->children;
 
-                while(count($children) > 0){
-                    $nextChildren = [];
-                    foreach ($children as $child) {
-                        $count += 1;
-                        $nextChildren = array_merge($nextChildren, $child->children->all());
+                    while(count($children) > 0){
+                        $nextChildren = [];
+                        foreach ($children as $child) {
+                            $count += 1;
+                            $nextChildren = array_merge($nextChildren, $child->children->all());
+                        }
+                        $children = $nextChildren;
                     }
-                    $children = $nextChildren;
-                }
 
-                return $count;
-            })->onlyOnIndex(),
+                    return $count;
+                }
+            )->onlyOnIndex(),
             CategoriesTree::make('Children')
                 ->withMeta(['tree' => ['root' => true, 'children' => $this->children]])
                 ->onlyOnDetail()
@@ -77,7 +79,7 @@ class Category extends Resource
     /**
      * Get the cards available for the request.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function cards(NovaRequest $request)
@@ -88,7 +90,7 @@ class Category extends Resource
     /**
      * Get the filters available for the resource.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function filters(NovaRequest $request)
@@ -99,7 +101,7 @@ class Category extends Resource
     /**
      * Get the lenses available for the resource.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function lenses(NovaRequest $request)
@@ -110,7 +112,7 @@ class Category extends Resource
     /**
      * Get the actions available for the resource.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function actions(NovaRequest $request)

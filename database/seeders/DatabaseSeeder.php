@@ -20,8 +20,11 @@ class DatabaseSeeder extends Seeder
             CreateAdminSeeder::class,
             UserSeeder::class,
             ConferenceSeeder::class,
+            ReportSeeder::class,
             PermissionSeeder::class,
-            ModelPermissionsSeeder::class
+            ModelPermissionsSeeder::class,
+            PlanSeeder::class,
+            SubscriptionSeeder::class
             ]
         );
     }

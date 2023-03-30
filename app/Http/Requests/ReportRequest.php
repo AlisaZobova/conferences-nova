@@ -40,13 +40,7 @@ class ReportRequest extends FormRequest
                     $end_time = $this->request->get('end_time');
                     $start_time = $this->request->get('start_time');
                     if ($end_time > $start_time) {
-                        $reportId = $this->request->get('id');
-                        if ($reportId) {
-                            $reports = Report::where('conference_id', $this->request->get('conference_id'), 'and')->where('id', '!=', $reportId)->get();
-                        }
-                        else {
-                            $reports = Report::where('conference_id', $this->request->get('conference_id'))->get();
-                        }
+                        $reports = Report::where('conference_id', $this->request->get('conference_id'))->get();
                         foreach ($reports as $report) {
                             $periods = $periods->add(Period::make($report->start_time, $report->end_time, Precision::MINUTE()));
                         }

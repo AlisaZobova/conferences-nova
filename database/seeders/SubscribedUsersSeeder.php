@@ -19,7 +19,8 @@ class SubscribedUsersSeeder extends Seeder
     public function run()
     {
         for ($i = 1; $i <= 3; $i++) {
-            $user = User::create([
+            $user = User::create(
+                [
                 'email' => fake()->unique()->safeEmail(),
                 'firstname' => fake()->firstname(),
                 'lastname' => fake()->lastname(),
@@ -29,11 +30,13 @@ class SubscribedUsersSeeder extends Seeder
                 'country_id' => fake()->numberBetween(1, 10),
                 'email_verified_at' => now(),
                 'remember_token' => Str::random(10),
-            ]);
+                ]
+            );
             $user->newSubscription('Basic', 'price_1MncqrDyniFMFJ6W8sOvCjRc')->create('pm_card_visa');
         }
         for ($i = 1; $i <= 3; $i++) {
-            $user = User::create([
+            $user = User::create(
+                [
                 'email' => fake()->unique()->safeEmail(),
                 'firstname' => fake()->firstname(),
                 'lastname' => fake()->lastname(),
@@ -43,7 +46,8 @@ class SubscribedUsersSeeder extends Seeder
                 'country_id' => fake()->numberBetween(1, 10),
                 'email_verified_at' => now(),
                 'remember_token' => Str::random(10),
-            ]);
+                ]
+            );
 
             try {
                 $user

@@ -31,8 +31,8 @@ class UserController extends Controller
         return $request->user()->loadRelationships();
     }
 
-    public function subscribe(Request $request) {
-
+    public function subscribe(Request $request)
+    {
         try {
             $subscription = Auth::user()->getActiveSubscriptionAttribute();
             $subscription->cancel();
@@ -45,8 +45,8 @@ class UserController extends Controller
             return response(['message' => $e->getMessage()], 500);
         }
     }
-    public function unsubscribe(Request $request) {
-
+    public function unsubscribe(Request $request)
+    {
         try {
             $subscription = Auth::user()->getActiveSubscriptionAttribute();
             $subscription->cancel();
@@ -62,8 +62,24 @@ class UserController extends Controller
 
     public function join(Conference $conference)
     {
-        $plan = Plan::where('name', Auth::user()->subscriptions[0]->name)->first();
-        if ($plan->joins_per_month && count(Auth::user()->joinedConferences) >= $plan->joins_per_month) {
+        $subscription = Auth::user()->getActiveSubscriptionAttribute();
+
+        $plan = Plan::where('name', $subscription->name)->first();
+
+        $joins = Auth::user()->joinedConferences()
+            ->whereDate(
+                'conference_user.created_at',
+                '>=',
+                $this->getMonthsAgo($subscription->ends_at?:now(), 1)
+            )
+            ->whereDate(
+                'conference_user.created_at',
+                '<=',
+                $subscription->ends_at ?: now()
+            )
+            ->count();
+
+        if ($plan->joins_per_month && $joins >= $plan->joins_per_month) {
             return response(['errors' => ['plan' => 'The available monthly joins for the current plan have run out!']], 500);
         } else {
             Auth::user()->joinedConferences()->attach($conference);
@@ -92,7 +108,8 @@ class UserController extends Controller
         return $user->loadRelationships();
     }
 
-    public function sendEmailJoinUser(Conference $conference, $user) {
+    public function sendEmailJoinUser(Conference $conference, $user)
+    {
         $joinedUsers = $conference->users;
 
         if($user->hasRole('Announcer')) {
@@ -111,5 +128,17 @@ class UserController extends Controller
                 }
             }
         }
+    }
+
+    public static function getMonthsAgo($date, int $n): string
+    {
+        $date = new \DateTime($date);
+        $day  = $date->format('j');
+        $date->modify('first day of this month')->modify('-' . $n . ' months');
+        if ($day > $date->format('t')) {
+            $day = $date->format('t');
+        }
+        $date->setDate($date->format('Y'), $date->format('m'), $day);
+        return $date->format('Y-m-d');
     }
 }

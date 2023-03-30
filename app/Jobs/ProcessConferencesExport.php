@@ -40,10 +40,13 @@ class ProcessConferencesExport implements ShouldQueue
 
         foreach ($this->conferences as $conference) {
 
-            $listeners = count($conference->users()->whereHas(
-                'roles', function($q){
-                $q->where('name', 'Listener');
-            })->get());
+            $listeners = count(
+                $conference->users()->whereHas(
+                    'roles', function ($q) {
+                        $q->where('name', 'Listener');
+                    }
+                )->get()
+            );
 
             $row['Title'] = $conference->title;
             $row['Date'] = $conference->conf_date;

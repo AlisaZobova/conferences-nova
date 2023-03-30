@@ -21,7 +21,8 @@ class ProcessReportsExport implements ShouldQueue
      * @return void
      */
     public function __construct(public $reports)
-    {}
+    {
+    }
 
     /**
      * Execute the job.
@@ -41,7 +42,7 @@ class ProcessReportsExport implements ShouldQueue
 
             $row['Topic'] = $report->topic;
             $row['Time'] = $report->start_time . ' - ' . $report->end_time;
-//            $row['Time'] = substr($report->start_time, 11, -3) . ' - ' . substr($report->end_time, 11, -3);
+            //            $row['Time'] = substr($report->start_time, 11, -3) . ' - ' . substr($report->end_time, 11, -3);
             $row['Description'] = $report->description;
             $row['Comments'] = count($report->comments);
 

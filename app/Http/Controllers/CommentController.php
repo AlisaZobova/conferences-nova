@@ -34,7 +34,8 @@ class CommentController extends Controller
         return $comment->load('user', 'report');
     }
 
-    public function export(Report $report) {
+    public function export(Report $report)
+    {
         ProcessReportCommentsExport::dispatch($report)->delay(now()->addSeconds(5));;
     }
 }

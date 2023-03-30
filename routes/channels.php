@@ -19,6 +19,8 @@ Broadcast::channel(
     }
 );
 
-Broadcast::channel('exportDownload', function () {
-    return true;
-});
+Broadcast::channel(
+    'exportDownload', function () {
+        return true;
+    }
+);

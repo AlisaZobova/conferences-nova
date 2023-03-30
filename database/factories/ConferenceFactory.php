@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Country;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,13 +18,21 @@ class ConferenceFactory extends Factory
      */
     public function definition()
     {
+        $countries = Country::all(['id'])->toArray();
+        $index = array_rand($countries);
+        $country = $countries[$index]['id'];
+
+        $users = User::all(['id'])->toArray();
+        $index = array_rand($users);
+        $user = $users[$index]['id'];
+
         return [
             'title' => ucfirst(fake()->word()),
-            'conf_date' => fake()->date(),
+            'conf_date' => fake()->dateTimeBetween('tomorrow', '+10 years'),
             'latitude' => fake()->numberBetween(-90, 90),
             'longitude' => fake()->numberBetween(-90, 90),
-            'country_id' => fake()->numberBetween(1, 10),
-            'user_id' => fake()->numberBetween(1, 10),
+            'country_id' => $country,
+            'user_id' => $user,
         ];
     }
 }

@@ -37,9 +37,10 @@ class ProcessConferenceListenersExport implements ShouldQueue
         $path = public_path('export') . $delimeter . $fileName;
 
         $listeners = $this->conference->users()->whereHas(
-            'roles', function($q){
-            $q->where('name', 'Listener');
-        })->get();
+            'roles', function ($q) {
+                $q->where('name', 'Listener');
+            }
+        )->get();
 
         $columns = array('Firstname', 'Lastname', 'Birthdate', 'Country', 'Phone', 'Email');
 

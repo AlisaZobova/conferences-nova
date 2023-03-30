@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ReportRequest;
+use App\Http\Requests\ReportUpdateRequest;
 use App\Jobs\ProcessReportsExport;
 use App\Models\Report;
 use App\Services\ZoomMeetingService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ReportController extends Controller
 {
@@ -69,7 +71,7 @@ class ReportController extends Controller
 
         if ($data['presentation']) {
             $fileName = time() . '_' . $data['presentation']->getClientOriginalName();
-            $data['presentation']->move(public_path('upload'), $fileName);
+            Storage::disk('upload')->putFileAs('', $data['presentation'], $fileName);
             $data['presentation'] = $fileName;
         }
 
@@ -95,18 +97,16 @@ class ReportController extends Controller
         return $report->load('user', 'conference', 'comments', 'category', 'meeting');
     }
 
-    public function update(Report $report, ReportRequest $request)
+    public function update(Report $report, ReportUpdateRequest $request)
     {
         $data = $request->validated();
 
         if ($data['presentation']) {
             if ($report->presentation) {
-                $delimeter = PHP_OS_FAMILY === 'Windows' ? '\\' : '/';
-                $filename = public_path('upload') . $delimeter . $report->presentation;
-                unlink($filename);
+                Storage::disk('upload')->delete($report->presentation);
             }
             $fileName = time() . '_' . $data['presentation']->getClientOriginalName();
-            $data['presentation']->move(public_path('upload'), $fileName);
+            Storage::disk('upload')->putFileAs('', $data['presentation'], $fileName);
             $data['presentation'] = $fileName;
         } else {
             unset($data['presentation']);
@@ -143,14 +143,7 @@ class ReportController extends Controller
 
     public function download(Report $report)
     {
-        $delimeter = PHP_OS_FAMILY === 'Windows' ? '\\' : '/';
-        $file = public_path('upload') . $delimeter . $report->presentation;
-        $ext = pathinfo($file, PATHINFO_EXTENSION);
-        $headers = [
-            'Content-Type' => $ext === '.ppt' ? 'application/vnd.ms-powerpoint' : 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        ];
-
-        return \response()->download($file, $report->presentation, $headers);
+        return Storage::disk('upload')->download($report->presentation);
     }
 
     public function export(Request $request)

@@ -75,7 +75,7 @@ class User extends Authenticatable
 
     public function joinedConferences()
     {
-        return $this->belongsToMany(Conference::class);
+        return $this->belongsToMany(Conference::class)->withTimestamps();
     }
 
     public function favorites()
@@ -94,12 +94,30 @@ class User extends Authenticatable
         $model_object->save();
     }
 
-    public function getCreditsAttribute() {
-        if (count($this->subscriptions) > 0) {
+    public function getCreditsAttribute()
+    {
+        $subscription = self::getActiveSubscriptionAttribute();
+
+        if ($subscription) {
+
+            $joins = self::joinedConferences()
+                ->whereDate(
+                    'conference_user.created_at',
+                    '>=',
+                    $this->getMonthsAgo($subscription->ends_at?:now(), 1)
+                )
+                ->whereDate(
+                    'conference_user.created_at',
+                    '<=',
+                    $subscription->ends_at ?: now()
+                )
+                ->count();
+
             $plan = Plan::where('name', $this->subscriptions[0]->name)->first();
+
             if ($plan->joins_per_month) {
-                $credits = $plan->joins_per_month - count($this->joinedConferences);
-                return $credits >= 0 ? $credits : 0;
+                $credits = $plan->joins_per_month - $joins;
+                return max($credits, 0);
             }
             else {
                 return 'unlimited';
@@ -110,20 +128,35 @@ class User extends Authenticatable
         }
     }
 
-    public function getHasCardAttribute() {
+    public function getHasCardAttribute()
+    {
         return $this->hasStripeId() && $this->hasPaymentMethod('card');
     }
 
-    public function getActiveSubscriptionAttribute() {
+    public function getActiveSubscriptionAttribute()
+    {
         return $this->subscriptions()->where('stripe_status', 'active')->first();
     }
 
-    public function loadRelationships() {
+    public function loadRelationships()
+    {
         return $this->load(
             'roles',
             'conferences:id,user_id',
             'joinedConferences:id,user_id',
             'favorites'
         );
+    }
+
+    public static function getMonthsAgo($date, int $n): string
+    {
+        $date = new \DateTime($date);
+        $day  = $date->format('j');
+        $date->modify('first day of this month')->modify('-' . $n . ' months');
+        if ($day > $date->format('t')) {
+            $day = $date->format('t');
+        }
+        $date->setDate($date->format('Y'), $date->format('m'), $day);
+        return $date->format('Y-m-d');
     }
 }

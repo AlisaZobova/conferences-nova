@@ -15,7 +15,8 @@ class ZoomMeetingService
         //
     }
 
-    public static function getHeaders() {
+    public static function getHeaders()
+    {
         return [
             'Authorization' => 'Bearer ' . self::generateZoomToken(),
             'Content-Type' => 'application/json',
@@ -23,11 +24,13 @@ class ZoomMeetingService
         ];
     }
 
-    public static function getClient() {
+    public static function getClient()
+    {
         return new Client();
     }
 
-    public static function getUrl() {
+    public static function getUrl()
+    {
         return config('zoom.url');
     }
 

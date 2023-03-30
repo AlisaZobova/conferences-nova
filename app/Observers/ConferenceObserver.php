@@ -21,7 +21,8 @@ class ConferenceObserver
         }
     }
 
-    public function updated(Conference $conference) {
+    public function updated(Conference $conference)
+    {
         if ($conference->conf_date != $conference->getOriginal('conf_date')) {
             foreach ($conference->reports as $report) {
                 $report_time = [

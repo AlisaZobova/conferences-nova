@@ -52,6 +52,14 @@ return [
             'throw' => false,
         ],
 
+        'export' => [
+            'driver' => 'local',
+            'root' => public_path('export'),
+            'url' => env('APP_URL').'/public/export',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
