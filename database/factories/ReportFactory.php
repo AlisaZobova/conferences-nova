@@ -18,9 +18,10 @@ class ReportFactory extends Factory
      */
     public function definition()
     {
-        $users = User::whereHas('roles', function ($q) {
-            $q->where('name', 'Announcer');
-        }
+        $users = User::whereHas(
+            'roles', function ($q) {
+                $q->where('name', 'Announcer');
+            }
         )->get(['id'])->toArray();
 
         $index = array_rand($users);

@@ -30,8 +30,8 @@ class UpdateReportTest extends TestCase
 
         $this->admin = User::whereHas(
             'roles', function ($q) {
-            $q->where('name', 'Admin');
-        }
+                $q->where('name', 'Admin');
+            }
         )->first();
 
         $this->conference = Conference::factory()->create();

@@ -94,7 +94,8 @@ class User extends Authenticatable
         $model_object->save();
     }
 
-    public function getCreditsAttribute() {
+    public function getCreditsAttribute()
+    {
         if (count($this->subscriptions) > 0) {
             $subscription = Auth::user()->getActiveSubscriptionAttribute();
 
@@ -118,15 +119,18 @@ class User extends Authenticatable
         }
     }
 
-    public function getHasCardAttribute() {
+    public function getHasCardAttribute()
+    {
         return $this->hasStripeId() && $this->hasPaymentMethod('card');
     }
 
-    public function getActiveSubscriptionAttribute() {
+    public function getActiveSubscriptionAttribute()
+    {
         return $this->subscriptions()->where('stripe_status', 'active')->first();
     }
 
-    public function loadRelationships() {
+    public function loadRelationships()
+    {
         return $this->load(
             'roles',
             'conferences:id,user_id',

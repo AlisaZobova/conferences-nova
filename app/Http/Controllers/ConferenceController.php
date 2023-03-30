@@ -36,9 +36,9 @@ class ConferenceController extends Controller
             }
             if ($key === 'reports') {
                 $range = explode('-', $value);
-                $conferences->withCount('reports')->
-                having('reports_count', '>=', $range[0], 'and')->
-                having('reports_count', '<=', $range[1]);
+                $conferences->withCount('reports')
+                    ->having('reports_count', '>=', $range[0], 'and')
+                    ->having('reports_count', '<=', $range[1]);
             }
             if ($key === 'category') {
                 $categories = explode(',', $value);

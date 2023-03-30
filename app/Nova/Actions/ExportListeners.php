@@ -18,8 +18,8 @@ class ExportListeners extends Action
     /**
      * Perform the action on the given models.
      *
-     * @param  \Laravel\Nova\Fields\ActionFields  $fields
-     * @param  \Illuminate\Support\Collection  $models
+     * @param  \Laravel\Nova\Fields\ActionFields $fields
+     * @param  \Illuminate\Support\Collection    $models
      * @return mixed
      */
     public function handle(ActionFields $fields, Collection $models)
@@ -28,9 +28,10 @@ class ExportListeners extends Action
         $file = fopen('php://temp/maxmemory:' . (5*1024*1024), 'r+');
 
         $listeners = $models[0]->users()->whereHas(
-            'roles', function($q){
-            $q->where('name', 'Listener');
-        })->get();
+            'roles', function ($q) {
+                $q->where('name', 'Listener');
+            }
+        )->get();
 
         $columns = array('Firstname', 'Lastname', 'Birthdate', 'Country', 'Phone', 'Email');
 
@@ -60,7 +61,7 @@ class ExportListeners extends Action
     /**
      * Get the fields available on the action.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function fields(NovaRequest $request)

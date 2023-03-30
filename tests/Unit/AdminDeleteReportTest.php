@@ -96,8 +96,8 @@ class AdminDeleteReportTest extends TestCase
     {
         return User::whereHas(
             'roles', function ($q) {
-            $q->where('name', 'Admin');
-        }
+                $q->where('name', 'Admin');
+            }
         )->first();
     }
 }

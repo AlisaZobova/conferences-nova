@@ -31,8 +31,8 @@ class UserController extends Controller
         return $request->user()->loadRelationships();
     }
 
-    public function subscribe(Request $request) {
-
+    public function subscribe(Request $request)
+    {
         try {
             $subscription = Auth::user()->getActiveSubscriptionAttribute();
             $subscription->cancel();
@@ -45,8 +45,8 @@ class UserController extends Controller
             return response(['message' => $e->getMessage()], 500);
         }
     }
-    public function unsubscribe(Request $request) {
-
+    public function unsubscribe(Request $request)
+    {
         try {
             $subscription = Auth::user()->getActiveSubscriptionAttribute();
             $subscription->cancel();
@@ -100,7 +100,8 @@ class UserController extends Controller
         return $user->loadRelationships();
     }
 
-    public function sendEmailJoinUser(Conference $conference, $user) {
+    public function sendEmailJoinUser(Conference $conference, $user)
+    {
         $joinedUsers = $conference->users;
 
         if($user->hasRole('Announcer')) {

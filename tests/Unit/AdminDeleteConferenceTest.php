@@ -26,8 +26,8 @@ class AdminDeleteConferenceTest extends TestCase
 
         $admin = User::whereHas(
             'roles', function ($q) {
-            $q->where('name', 'Admin');
-        }
+                $q->where('name', 'Admin');
+            }
         )->first();
 
         $conference = $this->getConferenceWithListener();
@@ -46,8 +46,8 @@ class AdminDeleteConferenceTest extends TestCase
     {
         $admin = User::whereHas(
             'roles', function ($q) {
-            $q->where('name', 'Admin');
-        }
+                $q->where('name', 'Admin');
+            }
         )->first();
 
         $conferenceId = Conference::withTrashed()->orderBy('id', 'DESC')->first()->id + 1;

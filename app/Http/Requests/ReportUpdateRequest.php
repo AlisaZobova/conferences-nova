@@ -95,7 +95,7 @@ class ReportUpdateRequest extends FormRequest
             'end_time' => [
                 'nullable',
                 'after:start_time',
-                function ($attribute, $value, $fail) use ($report){
+                function ($attribute, $value, $fail) use ($report) {
                     $start_time = $this->request->get('start_time') ? $this->request->get('start_time') : $report->start_time;
                     $start = new \DateTime($start_time);
                     $end = new \DateTime($value);

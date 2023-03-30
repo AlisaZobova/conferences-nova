@@ -40,8 +40,8 @@ class AddReportCommentTest extends TestCase
     {
         $admin = User::whereHas(
             'roles', function ($q) {
-            $q->where('name', 'Admin');
-        }
+                $q->where('name', 'Admin');
+            }
         )->first();
 
         $comment = $this->getCommentData($admin);

@@ -16,9 +16,10 @@ class SubscriptionSeeder extends Seeder
     public function run()
     {
         $users = User::whereHas(
-            'roles', function($q){
-            $q->where('name', '!=', 'Admin');
-        })->get();
+            'roles', function ($q) {
+                $q->where('name', '!=', 'Admin');
+            }
+        )->get();
 
         foreach ($users as $user) {
             $user->newSubscription('Free', 'price_1MncnEDyniFMFJ6WGZNAwRff')->create();

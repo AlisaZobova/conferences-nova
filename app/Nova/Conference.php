@@ -44,7 +44,7 @@ class Conference extends Resource
     /**
      * Get the fields displayed by the resource.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function fields(NovaRequest $request)
@@ -58,14 +58,18 @@ class Conference extends Resource
             Date::make('Date', 'conf_date')
                 ->min(now())
                 ->sortable()
-                ->rules('required', 'after_or_equal:' .
-                    date('d.m.Y', strtotime('-1 day', strtotime(today())))),
+                ->rules(
+                    'required', 'after_or_equal:' .
+                    date('d.m.Y', strtotime('-1 day', strtotime(today())))
+                ),
 
             GoogleMaps::make('Address')->hideFromIndex(),
 
-            Text::make('Country', function () {
-                return $this->country ? $this->country->name : '';
-            })->exceptOnForms(),
+            Text::make(
+                'Country', function () {
+                    return $this->country ? $this->country->name : '';
+                }
+            )->exceptOnForms(),
 
             BelongsTo::make('Country')->nullable()->onlyOnForms(),
 
@@ -76,7 +80,7 @@ class Conference extends Resource
     /**
      * Get the cards available for the request.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function cards(NovaRequest $request)
@@ -87,7 +91,7 @@ class Conference extends Resource
     /**
      * Get the filters available for the resource.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function filters(NovaRequest $request)
@@ -98,7 +102,7 @@ class Conference extends Resource
     /**
      * Get the lenses available for the resource.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function lenses(NovaRequest $request)
@@ -109,7 +113,7 @@ class Conference extends Resource
     /**
      * Get the actions available for the resource.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function actions(NovaRequest $request)

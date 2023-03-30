@@ -50,7 +50,7 @@ class Report extends Resource
     /**
      * Get the fields displayed by the resource.
      *
-     * @param \Laravel\Nova\Http\Requests\NovaRequest $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function fields(NovaRequest $request)
@@ -202,14 +202,14 @@ class Report extends Resource
 
             CopyField::make(
                 'Start Url', function () {
-                return $this->meeting ? $this->meeting->start_url : '';
-            }
+                    return $this->meeting ? $this->meeting->start_url : '';
+                }
             )->onlyOnDetail(),
 
             CopyField::make(
                 'Join Url', function () {
-                return $this->meeting ? $this->meeting->join_url : '';
-            }
+                    return $this->meeting ? $this->meeting->join_url : '';
+                }
             )->onlyOnDetail(),
 
             BelongsTo::make('Category')->exceptOnForms(),
@@ -219,7 +219,7 @@ class Report extends Resource
     /**
      * Get the cards available for the request.
      *
-     * @param \Laravel\Nova\Http\Requests\NovaRequest $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function cards(NovaRequest $request)
@@ -230,7 +230,7 @@ class Report extends Resource
     /**
      * Get the filters available for the resource.
      *
-     * @param \Laravel\Nova\Http\Requests\NovaRequest $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function filters(NovaRequest $request)
@@ -241,7 +241,7 @@ class Report extends Resource
     /**
      * Get the lenses available for the resource.
      *
-     * @param \Laravel\Nova\Http\Requests\NovaRequest $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function lenses(NovaRequest $request)
@@ -252,7 +252,7 @@ class Report extends Resource
     /**
      * Get the actions available for the resource.
      *
-     * @param \Laravel\Nova\Http\Requests\NovaRequest $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function actions(NovaRequest $request)

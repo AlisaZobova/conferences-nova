@@ -46,7 +46,7 @@ class Announcer extends Resource
     /**
      * Get the fields displayed by the resource.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function fields(NovaRequest $request)
@@ -69,9 +69,11 @@ class Announcer extends Resource
 
             PhoneInput::make('Phone')->onlyOnForms()->rules('required'),
 
-            Text::make('Country', function () {
-                return $this->country ? $this->country->name : '';
-            })->exceptOnForms(),
+            Text::make(
+                'Country', function () {
+                    return $this->country ? $this->country->name : '';
+                }
+            )->exceptOnForms(),
 
             BelongsTo::make('Country')->rules('required')->onlyOnForms(),
 
@@ -91,7 +93,7 @@ class Announcer extends Resource
     /**
      * Get the cards available for the request.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function cards(NovaRequest $request)
@@ -102,7 +104,7 @@ class Announcer extends Resource
     /**
      * Get the filters available for the resource.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function filters(NovaRequest $request)
@@ -113,7 +115,7 @@ class Announcer extends Resource
     /**
      * Get the lenses available for the resource.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function lenses(NovaRequest $request)
@@ -124,7 +126,7 @@ class Announcer extends Resource
     /**
      * Get the actions available for the resource.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
      * @return array
      */
     public function actions(NovaRequest $request)
@@ -135,16 +137,17 @@ class Announcer extends Resource
     /**
      * Build an "index" query for the given resource.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
+     * @param  \Illuminate\Database\Eloquent\Builder   $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
     public static function indexQuery(NovaRequest $request, $query)
     {
         return $query->whereHas(
-            'roles', function($q){
-            $q->where('name', 'Announcer');
-        });
+            'roles', function ($q) {
+                $q->where('name', 'Announcer');
+            }
+        );
     }
 
     public function title()
@@ -155,8 +158,8 @@ class Announcer extends Resource
     /**
      * Register a callback to be called after the resource is created.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @param  \Illuminate\Database\Eloquent\Model  $model
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest $request
+     * @param  \Illuminate\Database\Eloquent\Model     $model
      * @return void
      */
     public static function afterCreate(NovaRequest $request, Model $model)

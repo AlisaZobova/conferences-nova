@@ -6,11 +6,13 @@ use App\Models\Plan;
 
 class PlanController extends Controller
 {
-    public function index() {
+    public function index()
+    {
         return Plan::all();
     }
 
-    public function show(Plan $plan) {
+    public function show(Plan $plan)
+    {
         return $plan;
     }
 }

@@ -18,7 +18,8 @@ use Illuminate\Support\Facades\Mail;
 class ReportObserver
 {
 
-    public function created(Report $report) {
+    public function created(Report $report)
+    {
         if (Auth::user() && Auth::user()->hasRole('Admin')) {
             $report->user->joinedConferences()->attach($report->conference);
             $this->sendEmailJoinUser($report->conference, $report->user);
@@ -32,8 +33,9 @@ class ReportObserver
     {
         if (Auth::user()->hasRole('Admin')) {
 
-            if ($report->getOriginal('user_id') != $report->user_id ||
-                $report->getOriginal('conference_id') != $report->conference_id) {
+            if ($report->getOriginal('user_id') != $report->user_id 
+                || $report->getOriginal('conference_id') != $report->conference_id
+            ) {
 
                 $conference = Conference::find($report->getOriginal('conference_id'));
                 $user = User::find($report->getOriginal('user_id'));
@@ -47,8 +49,9 @@ class ReportObserver
                 ->send(new AdminUpdateReport($report->conference, $report, $report->getOriginal('topic')));
         }
 
-        if ($report->start_time != $report->getOriginal('start_time') ||
-            $report->end_time != $report->getOriginal('end_time')) {
+        if ($report->start_time != $report->getOriginal('start_time') 
+            || $report->end_time != $report->getOriginal('end_time')
+        ) {
 
             $conference = $report->conference;
             $joinedUsers = $conference->users;
@@ -61,12 +64,14 @@ class ReportObserver
         }
     }
 
-    public function updating(Report $report) {
+    public function updating(Report $report)
+    {
 
-        if (($report->start_time != $report->getOriginal('start_time') ||
-            $report->end_time != $report->getOriginal('end_time') ||
-            $report->topic != $report->getOriginal('topic'))
-            && $report->meeting) {
+        if (($report->start_time != $report->getOriginal('start_time') 
+            || $report->end_time != $report->getOriginal('end_time') 
+            || $report->topic != $report->getOriginal('topic'))
+            && $report->meeting
+        ) {
 
             return $this->updateZoom($report);
         }
@@ -91,7 +96,8 @@ class ReportObserver
         }
     }
 
-    public function deleting(Report $report) {
+    public function deleting(Report $report)
+    {
         if ($report->meeting) {
             return ZoomMeetingService::delete($report->meeting->id);
         }
@@ -100,7 +106,8 @@ class ReportObserver
         }
     }
 
-    public function updateZoom($report) {
+    public function updateZoom($report)
+    {
         $success = ZoomMeetingService::update($report->meeting->id, $report);
         if($success) {
             cache()->forget('meetings');
@@ -114,7 +121,8 @@ class ReportObserver
         return $success;
     }
 
-    public function sendEmailJoinUser(Conference $conference, $user) {
+    public function sendEmailJoinUser(Conference $conference, $user)
+    {
         $joinedUsers = $conference->users;
 
         if($user->hasRole('Announcer')) {
