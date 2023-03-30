@@ -27,7 +27,7 @@ class RedirectIfAuthenticated
                     $request->session()->invalidate();
                 }
                 else {
-                    return Auth::user()->loadRelationships();
+                    return response(Auth::user()->loadRelationships());
                 }
             }
         }
