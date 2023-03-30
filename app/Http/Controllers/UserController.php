@@ -67,8 +67,8 @@ class UserController extends Controller
         $plan = Plan::where('name', $subscription->name)->first();
 
         $joins = Auth::user()->joinedConferences()
-            ->whereDate('conference_user.created_at', '>=', date('Y-m-d H:i:s', strtotime('-1 month', $subscription->ends_at)))
-            ->whereDate('conference_user.created_at', '<=', date('Y-m-d H:i:s', $subscription->ends_at))
+            ->whereDate('conference_user.created_at', '>=', date('Y-m-d H:i:s', strtotime('-1 month', $subscription->ends_at?->timestamp)))
+            ->whereDate('conference_user.created_at', '<=', date('Y-m-d H:i:s', $subscription->ends_at?->timestamp))
             ->count();
 
         if ($plan->joins_per_month && $joins >= $plan->joins_per_month) {

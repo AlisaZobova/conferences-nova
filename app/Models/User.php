@@ -96,12 +96,13 @@ class User extends Authenticatable
 
     public function getCreditsAttribute()
     {
-        if (count($this->subscriptions) > 0) {
-            $subscription = Auth::user()->getActiveSubscriptionAttribute();
+        $subscription = self::getActiveSubscriptionAttribute();
 
-            $joins = Auth::user()->joinedConferences()
-                ->whereDate('conference_user.created_at', '>=', date('Y-m-d H:i:s', strtotime('-1 month', $subscription->ends_at)))
-                ->whereDate('conference_user.created_at', '<=', date('Y-m-d H:i:s', $subscription->ends_at))
+        if ($subscription) {
+
+            $joins = self::joinedConferences()
+                ->whereDate('conference_user.created_at', '>=', date('Y-m-d H:i:s', strtotime('-1 month', $subscription->ends_at?->timestamp)))
+                ->whereDate('conference_user.created_at', '<=', date('Y-m-d H:i:s', $subscription->ends_at?->timestamp))
                 ->count();
 
             $plan = Plan::where('name', $this->subscriptions[0]->name)->first();
