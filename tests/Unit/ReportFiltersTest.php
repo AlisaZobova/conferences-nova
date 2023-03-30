@@ -5,13 +5,7 @@ namespace Tests\Unit;
 use App\Models\Category;
 use App\Models\Report;
 use App\Models\User;
-use Database\Seeders\ConferenceSeeder;
-use Database\Seeders\CountrySeeder;
-use Database\Seeders\CreateAdminSeeder;
-use Database\Seeders\CreateRoleSeeder;
-use Database\Seeders\ModelPermissionsSeeder;
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\UserSeeder;
+use Database\Seeders\ReportTestSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -22,7 +16,10 @@ class ReportFiltersTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seedWithoutReports();
+
+        $this->artisan('migrate:refresh');
+        $this->seed(ReportTestSeeder::class);
+
         $this->categories = $this->createCategories();
         $this->reports = $this->createReports();
     }
@@ -137,59 +134,59 @@ class ReportFiltersTest extends TestCase
             'first_category' => Report::factory()
                 ->create(
                     [
-                    'start_time' => date('Y-m-d', (strtotime(now()))) . ' 15:10:00',
-                    'end_time' => date('Y-m-d', (strtotime(now()))) . ' 15:40:00',
-                    'category_id' => $this->categories['first']
+                        'start_time' => date('Y-m-d', (strtotime(now()))) . ' 15:10:00',
+                        'end_time' => date('Y-m-d', (strtotime(now()))) . ' 15:40:00',
+                        'category_id' => $this->categories['first']
                     ]
                 ),
             'second_category' => Report::factory()
                 ->create(
                     [
-                    'start_time' => date('Y-m-d', (strtotime(now()))) . ' 16:00:00',
-                    'end_time' => date('Y-m-d', (strtotime(now()))) . ' 16:40:00',
-                    'category_id' => $this->categories['second']
+                        'start_time' => date('Y-m-d', (strtotime(now()))) . ' 16:00:00',
+                        'end_time' => date('Y-m-d', (strtotime(now()))) . ' 16:40:00',
+                        'category_id' => $this->categories['second']
                     ]
                 ),
             '30_min' => Report::factory()
                 ->create(
                     [
-                    'start_time' => date('Y-m-d', (strtotime(now()))) . ' 13:00:00',
-                    'end_time' => date('Y-m-d', (strtotime(now()))) . ' 13:30:00'
+                        'start_time' => date('Y-m-d', (strtotime(now()))) . ' 13:00:00',
+                        'end_time' => date('Y-m-d', (strtotime(now()))) . ' 13:30:00'
                     ]
                 ),
             '15_min' => Report::factory()
                 ->create(
                     [
-                    'start_time' => date('Y-m-d', (strtotime(now()))) . ' 14:00:00',
-                    'end_time' => date('Y-m-d', (strtotime(now()))) . ' 14:15:00'
+                        'start_time' => date('Y-m-d', (strtotime(now()))) . ' 14:00:00',
+                        'end_time' => date('Y-m-d', (strtotime(now()))) . ' 14:15:00'
                     ]
                 ),
             '40_min' => Report::factory()
                 ->create(
                     [
-                    'start_time' => date('Y-m-d', (strtotime(now()))) . ' 14:20:00',
-                    'end_time' => date('Y-m-d', (strtotime(now()))) . ' 15:00:00'
+                        'start_time' => date('Y-m-d', (strtotime(now()))) . ' 14:20:00',
+                        'end_time' => date('Y-m-d', (strtotime(now()))) . ' 15:00:00'
                     ]
                 ),
             'start_8' => Report::factory()
                 ->create(
                     [
-                    'start_time' => date('Y-m-d', (strtotime(now()))) . ' 08:00:00',
-                    'end_time' => date('Y-m-d', (strtotime(now()))) . ' 08:50:00'
+                        'start_time' => date('Y-m-d', (strtotime(now()))) . ' 08:00:00',
+                        'end_time' => date('Y-m-d', (strtotime(now()))) . ' 08:50:00'
                     ]
                 ),
             'end_12' => Report::factory()
                 ->create(
                     [
-                    'start_time' => date('Y-m-d', (strtotime(now()))) . ' 11:00:00',
-                    'end_time' => date('Y-m-d', (strtotime(now()))) . ' 12:00:00'
+                        'start_time' => date('Y-m-d', (strtotime(now()))) . ' 11:00:00',
+                        'end_time' => date('Y-m-d', (strtotime(now()))) . ' 12:00:00'
                     ]
                 ),
             'start_9_end_10' => Report::factory()
                 ->create(
                     [
-                    'start_time' => date('Y-m-d', (strtotime(now()))) . ' 09:00:00',
-                    'end_time' => date('Y-m-d', (strtotime(now()))) . ' 10:00:00'
+                        'start_time' => date('Y-m-d', (strtotime(now()))) . ' 09:00:00',
+                        'end_time' => date('Y-m-d', (strtotime(now()))) . ' 10:00:00'
                     ]
                 ),
         ];
@@ -198,20 +195,5 @@ class ReportFiltersTest extends TestCase
     public function getUser()
     {
         return User::factory()->create();
-    }
-
-    public function seedWithoutReports()
-    {
-        $this->seed(
-            [
-                CountrySeeder::class,
-                CreateRoleSeeder::class,
-                CreateAdminSeeder::class,
-                UserSeeder::class,
-                ConferenceSeeder::class,
-                PermissionSeeder::class,
-                ModelPermissionsSeeder::class
-            ]
-        );
     }
 }

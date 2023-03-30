@@ -27,14 +27,12 @@ class AdminDeleteReportTest extends TestCase
 
         $admin = $this->getAdmin();
 
-        $reportId = $this->getCreatedReportId();
+        $report = Report::factory()->create();
 
         $response = $this->actingAs($admin)
-            ->json('DELETE', 'nova-api/reports?resources[]=' . $reportId);
+            ->json('DELETE', 'nova-api/reports?resources[]=' . $report->id);
 
         $response->assertStatus(200);
-
-        $report = Report::withTrashed()->find($reportId);
 
         $this->assertSoftDeleted($report);
 
@@ -47,7 +45,7 @@ class AdminDeleteReportTest extends TestCase
 
         $admin = $this->getAdmin();
 
-        $latest = Report::withTrashed()->latest()->first();
+        $latest = Report::withTrashed()->orderBy('id', 'DESC')->first();
 
         $reportId = $latest ? $latest->id + 1 : 1;
 
@@ -57,6 +55,29 @@ class AdminDeleteReportTest extends TestCase
 
         Mail::assertNotQueued(AdminDeleteReport::class);
     }
+
+    public function test_fail_no_auth()
+    {
+        $report = Report::factory()->create();
+
+        $response = $this
+            ->json('DELETE', 'nova-api/reports?resources[]=' . $report->id);
+
+        $response->assertStatus(401);
+    }
+
+    public function test_fail_no_admin()
+    {
+        $user = User::factory()->create();
+
+        $report = Report::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->json('DELETE', 'nova-api/reports?resources[]=' . $report->id);
+
+        $response->assertStatus(403);
+    }
+
 
     public function getConferenceWithListener()
     {
@@ -75,33 +96,8 @@ class AdminDeleteReportTest extends TestCase
     {
         return User::whereHas(
             'roles', function ($q) {
-                $q->where('name', 'Admin');
-            }
+            $q->where('name', 'Admin');
+        }
         )->first();
     }
-
-    public function getCreatedReportId()
-    {
-            $admin = $this->getAdmin();
-
-            $conference = $this->getConferenceWithListener();
-
-            $announcer = User::factory()->create_announcer();
-
-            $report = [
-                'user' => $announcer->id,
-                'conference' => $conference->id,
-                'topic' => 'Topic',
-                'start_time' => '12:00',
-                'end_time' => '12:30',
-                'description' => '',
-                'presentation' => null
-            ];
-
-            $response = $this->actingAs($admin)
-                ->json('POST', 'nova-api/reports?editing=true&editMode=create', $report);
-
-            return $response->original['resource']['id'];
-    }
-
 }

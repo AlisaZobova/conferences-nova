@@ -40,9 +40,14 @@ class DeleteReportTest extends TestCase
         $this->conference = Conference::factory()->create();
         $this->announcer = User::factory()->create_announcer();
 
-        $report = $this->getReportData($this->announcer, $this->conference);
-        $response = $this->actingAs($this->announcer)->json('POST', 'api/reports', $report);
-        $this->report = $response->original;
+        $this->report = Report::factory()->create(
+            [
+                'user_id' => $this->announcer->id,
+                'conference_id' => $this->conference->id,
+                'start_time' => $this->conference->conf_date->format('Y-m-d') . ' 12:00:00',
+                'end_time' => $this->conference->conf_date->format('Y-m-d') . ' 12:30:00',
+            ]
+        );
     }
 
 
@@ -59,7 +64,6 @@ class DeleteReportTest extends TestCase
 
     public function test_fail_delete_by_listener()
     {
-
         $listener = User::factory()->create_listener();
 
         $response = $this->actingAs($listener)->json('DELETE', 'api/reports/' . $this->report->id);
@@ -69,7 +73,6 @@ class DeleteReportTest extends TestCase
 
     public function test_fail_delete_by_not_report_creator()
     {
-
         $anotherAnnouncer = User::factory()->create_announcer();
 
         $response = $this->actingAs($anotherAnnouncer)->json('DELETE', 'api/reports/' . $this->report->id);
@@ -82,24 +85,10 @@ class DeleteReportTest extends TestCase
     {
         Storage::fake('upload');
 
-        $reportId = Report::withTrashed()->latest()->first()->id + 1;
+        $reportId = Report::withTrashed()->orderBy('id', 'DESC')->first()->id + 1;
 
         $response = $this->actingAs($this->announcer)->json('DELETE', 'api/reports/' . $reportId);
 
         $response->assertStatus(404);
     }
-
-    public function getReportData($announcer, $conference)
-    {
-        return [
-            'user_id' => $announcer->id,
-            'conference_id' => $conference->id,
-            'topic' => 'Topic',
-            'start_time' => $conference->conf_date->format('Y-m-d') . ' 12:00:00',
-            'end_time' => $conference->conf_date->format('Y-m-d') . ' 12:30:00',
-            'description' => 'Lorem ipsum',
-            'presentation' => null
-        ];
-    }
-
 }

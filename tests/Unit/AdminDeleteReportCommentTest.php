@@ -33,7 +33,7 @@ class AdminDeleteReportCommentTest extends TestCase
     public function test_deleting_non_existent()
     {
 
-        $latest = Comment::latest()->first();
+        $latest = Comment::orderBy('id', 'DESC')->first();
 
         $commentId = $latest ? $latest->id + 1 : 1;
 
@@ -42,6 +42,31 @@ class AdminDeleteReportCommentTest extends TestCase
             ->json('DELETE', 'nova-api/comments?resources[]=' . $commentId);
 
         $response->assertStatus(200);
+    }
+
+    public function test_fail_no_auth()
+    {
+        $comment = $this->getComment();
+
+        $response = $this
+            ->json('DELETE', 'nova-api/comments?resources[]=' . $comment->id);
+
+        $response->assertStatus(401);
+        $this->assertModelExists($comment);
+    }
+
+    public function test_fail_no_admin()
+    {
+        $user = User::factory()->create();
+
+        $comment = $this->getComment();
+
+        $response = $this
+            ->actingAs($user)
+            ->json('DELETE', 'nova-api/comments?resources[]=' . $comment->id);
+
+        $response->assertStatus(403);
+        $this->assertModelExists($comment);
     }
 
     public function getComment()
@@ -53,8 +78,8 @@ class AdminDeleteReportCommentTest extends TestCase
     {
         return User::whereHas(
             'roles', function ($q) {
-                $q->where('name', 'Admin');
-            }
+            $q->where('name', 'Admin');
+        }
         )->first();
     }
 }

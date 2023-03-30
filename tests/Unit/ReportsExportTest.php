@@ -16,12 +16,13 @@ class ReportsExportTest extends TestCase
 
     use NovaActionTest;
 
-    /**
-     * Indicates whether the default seeder should run before each test.
-     *
-     * @var bool
-     */
-    protected $seed = true;
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->artisan('migrate:refresh');
+        $this->seed();
+    }
 
     public function test_successful_export_file_created()
     {
@@ -78,8 +79,8 @@ class ReportsExportTest extends TestCase
     {
         return User::whereHas(
             'roles', function ($q) {
-                $q->where('name', 'Admin');
-            }
+            $q->where('name', 'Admin');
+        }
         )->first();
     }
 }

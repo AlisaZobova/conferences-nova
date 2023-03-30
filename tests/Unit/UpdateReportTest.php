@@ -17,38 +17,45 @@ class UpdateReportTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * Indicates whether the default seeder should run before each test.
-     *
-     * @var bool
-     */
-    protected $seed = true;
-
-    /**
      * Set up the test
      */
     public function setUp(): void
     {
         parent::setUp();
 
+        $this->artisan('migrate:refresh');
+        $this->seed();
+
         Storage::fake('upload');
 
         $this->admin = User::whereHas(
             'roles', function ($q) {
-                $q->where('name', 'Admin');
-            }
+            $q->where('name', 'Admin');
+        }
         )->first();
 
         $this->conference = Conference::factory()->create();
         $this->announcer = User::factory()->create_announcer();
-        $report = $this->getReportData($this->announcer, $this->conference);
 
-        $response = $this->actingAs($this->announcer)->json('POST', 'api/reports', $report);
-        $this->reportId = $response->original->id;
+        $this->report = Report::factory()->create(
+            [
+                'user_id' => $this->announcer->id,
+                'conference_id' => $this->conference->id,
+                'start_time' => $this->conference->conf_date->format('Y-m-d') . ' 12:00:00',
+                'end_time' => $this->conference->conf_date->format('Y-m-d') . ' 12:30:00',
+            ]
+        );
 
         $this->confWithList = $this->getConferenceWithListener();
-        $reportWithList = $this->getReportData($this->announcer, $this->confWithList);
-        $responseList = $this->actingAs($this->announcer)->json('POST', 'api/reports', $reportWithList);
-        $this->reportIdWithList = $responseList->original->id;
+
+        $this->reportWithList = Report::factory()->create(
+            [
+                'user_id' => $this->announcer->id,
+                'conference_id' => $this->confWithList->id,
+                'start_time' => $this->confWithList->conf_date->format('Y-m-d') . ' 12:00:00',
+                'end_time' => $this->confWithList->conf_date->format('Y-m-d') . ' 12:30:00',
+            ]
+        );
 
         $this->newFields = $this->getNewFields();
     }
@@ -58,12 +65,30 @@ class UpdateReportTest extends TestCase
     {
         Storage::fake('upload');
 
-        $response = $this->actingAs($this->announcer)->json('PATCH', 'api/reports/' . $this->reportId, $this->newFields);
+        $response = $this->actingAs($this->announcer)->json('PATCH', 'api/reports/' . $this->report->id, $this->newFields);
+
+        $response->assertStatus(200);
+
+        $this->assertModelExists($response->original);
+
+        Storage::disk('upload')->assertExists($response->original->presentation);
+
+        $this->assertTrue(Report::find($response->original->id)->meeting === null);
+    }
+
+    public function test_successful_update_with_zoom_creating()
+    {
+        Storage::fake('upload');
+
+        $newFields = $this->getNewFields();
+        $newFields['online'] = ['true'];
+
+        $response = $this->actingAs($this->announcer)->json('PATCH', 'api/reports/' . $this->report->id, $newFields);
 
         $response->assertStatus(200);
         $this->assertModelExists($response->original);
-        Storage::disk('upload')->assertExists($response->original->presentation);
 
+        $this->assertTrue(Report::find($response->original->id)->meeting !== null);
     }
 
     public function test_time_update_emails_sending()
@@ -76,7 +101,7 @@ class UpdateReportTest extends TestCase
             'presentation' => null
         ];
 
-        $response = $this->actingAs($this->announcer)->json('PATCH', 'api/reports/' . $this->reportIdWithList, $newFields);
+        $response = $this->actingAs($this->announcer)->json('PATCH', 'api/reports/' . $this->reportWithList->id, $newFields);
 
         $response->assertStatus(200);
 
@@ -85,34 +110,31 @@ class UpdateReportTest extends TestCase
 
     public function test_fail_update_by_listener()
     {
-
         $listener = User::factory()->create_listener();
 
-        $response = $this->actingAs($listener)->json('PATCH', 'api/reports/' . $this->reportId, $this->newFields);
+        $response = $this->actingAs($listener)->json('PATCH', 'api/reports/' . $this->report->id, $this->newFields);
 
         $response->assertStatus(403);
     }
 
     public function test_fail_update_by_not_report_creator()
     {
-
         $anotherAnnouncer = User::factory()->create_announcer();
 
-        $response = $this->actingAs($anotherAnnouncer)->json('PATCH', 'api/reports/' . $this->reportId, $this->newFields);
+        $response = $this->actingAs($anotherAnnouncer)->json('PATCH', 'api/reports/' . $this->report->id, $this->newFields);
 
         $response->assertStatus(403);
     }
 
     public function test_fail_with_invalid_data()
     {
-
         $newFields = [
             'start_time' => $this->conference->conf_date->format('Y-m-d') . ' 07:05:00',
             'end_time' => $this->conference->conf_date->format('Y-m-d') . ' 22:20:00',
             'presentation' => 444
         ];
 
-        $response = $this->actingAs($this->announcer)->json('PATCH', 'api/reports/' . $this->reportId, $newFields);
+        $response = $this->actingAs($this->announcer)->json('PATCH', 'api/reports/' . $this->report->id, $newFields);
 
         $response->assertStatus(422);
 
@@ -123,7 +145,7 @@ class UpdateReportTest extends TestCase
     {
         Storage::fake('upload');
 
-        $reportId = Report::withTrashed()->latest()->first()->id + 1;
+        $reportId = Report::withTrashed()->orderBy('id', 'DESC')->first()->id + 1;
 
         $response = $this->actingAs($this->announcer)->json('PATCH', 'api/reports/' . $reportId, $this->newFields);
 
@@ -143,19 +165,6 @@ class UpdateReportTest extends TestCase
         return $conference;
     }
 
-    public function getReportData($announcer, $conference)
-    {
-        return [
-            'user_id' => $announcer->id,
-            'conference_id' => $conference->id,
-            'topic' => 'Topic',
-            'start_time' => $conference->conf_date->format('Y-m-d') . ' 12:00:00',
-            'end_time' => $conference->conf_date->format('Y-m-d') . ' 12:30:00',
-            'description' => 'Lorem ipsum',
-            'presentation' => null
-        ];
-    }
-
     public function getNewFields()
     {
         return [
@@ -166,7 +175,8 @@ class UpdateReportTest extends TestCase
                 ->create(
                     'Presentation', 5000,
                     'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-                )
+                ),
+            'online' => 'false'
         ];
     }
 }

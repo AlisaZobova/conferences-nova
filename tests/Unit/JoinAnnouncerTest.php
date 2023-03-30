@@ -4,6 +4,8 @@ namespace Tests\Unit;
 
 use App\Mail\JoinAnnouncer;
 use App\Models\Conference;
+use App\Models\Plan;
+use App\Models\Report;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -13,12 +15,13 @@ class JoinAnnouncerTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * Indicates whether the default seeder should run before each test.
-     *
-     * @var bool
-     */
-    protected $seed = true;
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->artisan('migrate:refresh');
+        $this->seed();
+    }
 
     public function test_successful_join()
     {
@@ -47,17 +50,10 @@ class JoinAnnouncerTest extends TestCase
     {
         Mail::fake();
 
-        $announcer = $this->getAnnouncer();
-        $conference = Conference::factory()->create();
-
-        $this->createReport($announcer, $conference);
-
-        $this->actingAs($announcer)->json('POST', 'api/conferences/' . $conference->id . '/join');
+        $announcer = $this->getAnnouncerWithSubscription();
 
         $conference = $this->getConferenceWithListener();
-
         $this->createReport($announcer, $conference);
-
         $response = $this->actingAs($announcer)->json('POST', 'api/conferences/' . $conference->id . '/join');
 
         $response->assertStatus(500);
@@ -97,16 +93,24 @@ class JoinAnnouncerTest extends TestCase
 
     public function createReport($announcer, $conference)
     {
-        $report = [
-            'user_id' => $announcer->id,
-            'conference_id' => $conference->id,
-            'topic' => 'Topic',
-            'start_time' => $conference->conf_date->format('Y-m-d') . ' 12:00:00',
-            'end_time' => $conference->conf_date->format('Y-m-d') . ' 12:30:00',
-            'description' => '',
-            'presentation' => null
-        ];
+        Report::factory()->create(
+            [
+                'user_id' => $announcer->id,
+                'conference_id' => $conference->id,
+                'start_time' => $conference->conf_date->format('Y-m-d') . ' 12:00:00',
+                'end_time' => $conference->conf_date->format('Y-m-d') . ' 12:30:00'
+            ]
+        );
+    }
 
-        $this->actingAs($announcer)->json('POST', 'api/reports', $report);
+    public function getAnnouncerWithSubscription()
+    {
+        $announcer = $this->getAnnouncer();
+
+        $conference = Conference::factory()->create();
+        $this->createReport($announcer, $conference);
+        $this->actingAs($announcer)->json('POST', 'api/conferences/' . $conference->id . '/join');
+
+        return $announcer;
     }
 }

@@ -18,27 +18,59 @@ class AdminUpdateCategoryTest extends TestCase
      */
     protected $seed = true;
 
-    public function test_successful_updating()
+    public function test_successful_updating_with_parent()
     {
         $admin = $this->getAdmin();
 
-        $categoryId = $this->getCreatedCategoryId();
+        $category = Category::create(['name' => fake()->word(), 'ancestor_id' => null]);
 
-        $category = [
+        $parentCategory = Category::create(['name' => fake()->word(), 'ancestor_id' => null]);
+
+        $newFields = [
             'name' => fake()->word(),
-            'parent' => $this->getCreatedCategoryId()
+            'parent' => $parentCategory->id
         ];
 
         $response = $this->actingAs($admin)
-            ->json('PUT', 'nova-api/categories/' . $categoryId . '?editing=true&editMode=update', $category);
+            ->json(
+                'PUT',
+                'nova-api/categories/' . $category->id . '?editing=true&editMode=update', $newFields
+            );
 
         $response->assertStatus(200);
 
-        $updatedCategory = Category::find($categoryId);
+        $updatedCategory = Category::find($category->id);
 
         $this->assertTrue(
-            $updatedCategory->name === $category['name'] &&
-                $updatedCategory->ancestor_id === $category['parent']
+            $updatedCategory->name === $newFields['name'] &&
+            $updatedCategory->ancestor_id === $newFields['parent']
+        );
+    }
+
+    public function test_successful_updating_without_parent()
+    {
+        $admin = $this->getAdmin();
+
+        $category = Category::create(['name' => fake()->word(), 'ancestor_id' => null]);
+
+        $newFields = [
+            'name' => fake()->word(),
+            'parent' => null
+        ];
+
+        $response = $this->actingAs($admin)
+            ->json(
+                'PUT',
+                'nova-api/categories/' . $category->id . '?editing=true&editMode=update', $newFields
+            );
+
+        $response->assertStatus(200);
+
+        $updatedCategory = Category::find($category->id);
+
+        $this->assertTrue(
+            $updatedCategory->name === $newFields['name'] &&
+            $updatedCategory->ancestor_id === $newFields['parent']
         );
     }
 
@@ -46,42 +78,72 @@ class AdminUpdateCategoryTest extends TestCase
     {
         $admin = $this->getAdmin();
 
-        $categoryId = $this->getCreatedCategoryId();
+        $category = Category::create(['name' => fake()->word(), 'ancestor_id' => null]);
 
-        $category = [
+        $newFields = [
             'name' => null,
             'parent' => null
         ];
 
         $response = $this->actingAs($admin)
-            ->json('PUT', 'nova-api/categories/' . $categoryId . '?editing=true&editMode=update', $category);
+            ->json(
+                'PUT',
+                'nova-api/categories/' . $category->id . '?editing=true&editMode=update', $newFields
+            );
 
         $response->assertStatus(422);
 
         $response->assertInvalid('name');
     }
 
+    public function test_fail_no_auth()
+    {
+        $category = Category::create(['name' => fake()->word(), 'ancestor_id' => null]);
+
+        $parentCategory = Category::create(['name' => fake()->word(), 'ancestor_id' => null]);
+
+        $newFields = [
+            'name' => fake()->word(),
+            'parent' => $parentCategory->id
+        ];
+
+        $response = $this
+            ->json(
+                'PUT',
+                'nova-api/categories/' . $category->id . '?editing=true&editMode=update', $newFields
+            );
+
+        $response->assertStatus(401);
+    }
+
+    public function test_fail_no_admin()
+    {
+        $user = User::factory()->create();
+
+        $category = Category::create(['name' => fake()->word(), 'ancestor_id' => null]);
+
+        $parentCategory = Category::create(['name' => fake()->word(), 'ancestor_id' => null]);
+
+        $newFields = [
+            'name' => fake()->word(),
+            'parent' => $parentCategory->id
+        ];
+
+        $response = $this->actingAs($user)
+            ->json(
+                'PUT',
+                'nova-api/categories/' . $category->id . '?editing=true&editMode=update', $newFields
+            );
+
+        $response->assertStatus(403);
+    }
+
     public function getAdmin()
     {
         return User::whereHas(
             'roles', function ($q) {
-                $q->where('name', 'Admin');
-            }
+            $q->where('name', 'Admin');
+        }
         )->first();
-    }
-
-    public function getCreatedCategoryId()
-    {
-        $admin = $this->getAdmin();
-
-        $category = [
-            'name' => fake()->word(),
-            'parent' => null
-        ];
-
-        $response = $this->actingAs($admin)
-            ->json('POST', 'nova-api/categories?editing=true&editMode=create', $category);
-
-        return $response->original['resource']['id'];
     }
 }

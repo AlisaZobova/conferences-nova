@@ -11,31 +11,23 @@ class DeleteReportCommentTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * Indicates whether the default seeder should run before each test.
-     *
-     * @var bool
-     */
-    protected $seed = true;
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->artisan('migrate:refresh');
+        $this->seed();
+    }
 
     public function test_delete_comment_method_not_allowed()
     {
-        $comment = $this->getComment();
+        $comment = Comment::factory()->create();
+        $author = User::find($comment->user_id);
 
         $response = $this
-            ->actingAs($this->getAuthor())
+            ->actingAs($author)
             ->json('DELETE', 'api/comments/' . $comment->id);
 
         $response->assertStatus(405);
-    }
-
-    public function getAuthor()
-    {
-        return User::find($this->getComment()->user_id);
-    }
-
-    public function getComment()
-    {
-        return Comment::factory()->create();
     }
 }

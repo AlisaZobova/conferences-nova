@@ -4,15 +4,23 @@ namespace Tests\Unit;
 
 use App\Models\Plan;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ChangePlanTest extends TestCase
 {
+    use RefreshDatabase;
+
+    /**
+     * Indicates whether the default seeder should run before each test.
+     *
+     * @var bool
+     */
+    protected $seed = true;
+
     public function test_successful_change_plan()
     {
-        $user = User::factory()->create();
-
-        $user->newSubscription('Free', 'price_1MncnEDyniFMFJ6WGZNAwRff')->create();
+        $user = $this->getUserWithFreePlan();
 
         $plan = Plan::find(3);
 
@@ -28,9 +36,7 @@ class ChangePlanTest extends TestCase
 
     public function test_fail_change_plan_with_declined_card()
     {
-        $user = User::factory()->create();
-
-        $user->newSubscription('Free', 'price_1MncnEDyniFMFJ6WGZNAwRff')->create();
+        $user = $this->getUserWithFreePlan();
 
         $plan = Plan::find(3);
 
@@ -50,8 +56,8 @@ class ChangePlanTest extends TestCase
     {
         $admin = User::whereHas(
             'roles', function ($q) {
-                $q->where('name', 'Admin');
-            }
+            $q->where('name', 'Admin');
+        }
         )->first();
 
         $plan = Plan::find(3);
@@ -62,5 +68,14 @@ class ChangePlanTest extends TestCase
         );
 
         $response->assertStatus(403);
+    }
+
+    public function getUserWithFreePlan()
+    {
+        $user = User::factory()->create();
+
+        $user->newSubscription('Free', 'price_1MncnEDyniFMFJ6WGZNAwRff')->create();
+
+        return $user;
     }
 }

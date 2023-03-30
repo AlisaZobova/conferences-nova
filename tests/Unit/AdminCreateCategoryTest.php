@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Models\User;
+use App\Models\Category;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -38,9 +39,11 @@ class AdminCreateCategoryTest extends TestCase
     {
         $admin = $this->getAdmin();
 
+        $category = Category::create(['name' => fake()->word(), 'ancestor_id' => null]);
+
         $category = [
             'name' => 'Child',
-            'parent' => $this->getCreatedCategoryId()
+            'parent' => $category->id
         ];
 
         $response = $this->actingAs($admin)
@@ -67,27 +70,39 @@ class AdminCreateCategoryTest extends TestCase
         $response->assertInvalid('name');
     }
 
+    public function test_fail_no_auth()
+    {
+        $category = [
+            'name' => 'Root',
+            'parent' => null
+        ];
+
+        $response = $this->json('POST', 'nova-api/categories?editing=true&editMode=create', $category);
+
+        $response->assertStatus(401);
+    }
+
+    public function test_fail_no_admin()
+    {
+        $user = User::factory()->create();
+
+        $category = [
+            'name' => 'Root',
+            'parent' => null
+        ];
+
+        $response = $this->actingAs($user)
+            ->json('POST', 'nova-api/categories?editing=true&editMode=create', $category);
+
+        $response->assertStatus(403);
+    }
+
     public function getAdmin()
     {
         return User::whereHas(
             'roles', function ($q) {
-                $q->where('name', 'Admin');
-            }
+            $q->where('name', 'Admin');
+        }
         )->first();
-    }
-
-    public function getCreatedCategoryId()
-    {
-        $admin = $this->getAdmin();
-
-        $category = [
-            'name' => 'Parent',
-            'parent' => null
-        ];
-
-        $response = $this->actingAs($admin)
-            ->json('POST', 'nova-api/categories?editing=true&editMode=create', $category);
-
-        return $response->original['resource']['id'];
     }
 }

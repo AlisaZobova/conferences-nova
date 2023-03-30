@@ -6,12 +6,7 @@ use App\Models\Category;
 use App\Models\Conference;
 use App\Models\Report;
 use App\Models\User;
-use Database\Seeders\CountrySeeder;
-use Database\Seeders\CreateAdminSeeder;
-use Database\Seeders\CreateRoleSeeder;
-use Database\Seeders\ModelPermissionsSeeder;
-use Database\Seeders\PermissionSeeder;
-use Database\Seeders\UserSeeder;
+use Database\Seeders\ConferenceTestSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -22,7 +17,10 @@ class ConferenceFiltersTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->seedWithoutConferences();
+
+        $this->artisan('migrate:refresh');
+        $this->seed(ConferenceTestSeeder::class);
+
         $this->categories = $this->createCategories();
         $this->conferences = $this->createConferences();
         $this->createReports();
@@ -161,40 +159,40 @@ class ConferenceFiltersTest extends TestCase
             'first_category' => Conference::factory()
                 ->create(
                     [
-                    'conf_date' => '2023-12-12',
-                    'category_id' => $this->categories['first']
+                        'conf_date' => '2023-12-12',
+                        'category_id' => $this->categories['first']
                     ]
                 ),
             'second_category' => Conference::factory()
                 ->create(
                     [
-                    'conf_date' => '2023-05-12',
-                    'category_id' => $this->categories['second']
+                        'conf_date' => '2023-05-12',
+                        'category_id' => $this->categories['second']
                     ]
                 ),
             'category_with_report' => Conference::factory()
                 ->create(
                     [
-                    'conf_date' => '2023-05-12',
-                    'category_id' => $this->categories['first']
+                        'conf_date' => '2023-05-12',
+                        'category_id' => $this->categories['first']
                     ]
                 ),
             '1_report' => Conference::factory()
                 ->create(
                     [
-                    'conf_date' => '2025-05-12',
+                        'conf_date' => '2025-05-12',
                     ]
                 ),
             '2_reports' => Conference::factory()
                 ->create(
                     [
-                    'conf_date' => '2026-05-12',
+                        'conf_date' => '2026-05-12',
                     ]
                 ),
             '2030_year' => Conference::factory()
                 ->create(
                     [
-                    'conf_date' => '2030-05-12',
+                        'conf_date' => '2030-05-12',
                     ]
                 ),
         ];
@@ -211,19 +209,5 @@ class ConferenceFiltersTest extends TestCase
     public function getUser()
     {
         return User::factory()->create();
-    }
-
-    public function seedWithoutConferences()
-    {
-        $this->seed(
-            [
-                CountrySeeder::class,
-                CreateRoleSeeder::class,
-                CreateAdminSeeder::class,
-                UserSeeder::class,
-                PermissionSeeder::class,
-                ModelPermissionsSeeder::class
-            ]
-        );
     }
 }

@@ -56,9 +56,9 @@ class UpdateProfileTest extends TestCase
 
         $response->assertInvalid(
             [
-            'email' => 'This email already exists',
-            'password' => 'The password confirmation does not match.',
-            'birthdate' => 'The birthdate is not a valid date.'
+                'email' => 'This email already exists',
+                'password' => 'The password confirmation does not match.',
+                'birthdate' => 'The birthdate is not a valid date.'
             ]
         );
     }
@@ -81,7 +81,7 @@ class UpdateProfileTest extends TestCase
             'lastname' => fake()->lastname(),
             'password' => '12345678',
             'password_confirmation' => '12345678',
-            'birthdate' =>  fake()->date(),
+            'birthdate' => fake()->date(),
             'phone' => fake()->phoneNumber(),
             'country_id' => $country,
         ];
@@ -101,7 +101,7 @@ class UpdateProfileTest extends TestCase
             'email' => $user->email,
             'password' => '12345678',
             'password_confirmation' => '123456789',
-            'birthdate' =>  fake()->word(),
+            'birthdate' => fake()->word(),
             'phone' => fake()->phoneNumber(),
             'country_id' => $country,
         ];

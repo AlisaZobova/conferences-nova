@@ -34,19 +34,15 @@ class AdminUpdateReportTest extends TestCase
 
         $this->admin = User::whereHas(
             'roles', function ($q) {
-                $q->where('name', 'Admin');
-            }
+            $q->where('name', 'Admin');
+        }
         )->first();
 
         $this->conference = Conference::factory()->create();
         $this->announcer = User::factory()->create_announcer();
-        $report = $this->getReportData($this->announcer, $this->conference);
+        $this->report = Report::factory()->create();
 
-        $response = $this->actingAs($this->admin)->json('POST', 'nova-api/reports?editing=true&editMode=create', $report);
-
-        $this->reportId = $response->original['resource']['id'];
-
-        $this->newFields = $this->getNewFields();
+        $this->newFields = $this->getReportData($this->announcer, $this->conference);
     }
 
     public function test_successful_update()
@@ -54,12 +50,14 @@ class AdminUpdateReportTest extends TestCase
         Storage::fake('upload');
 
         $response = $this->actingAs($this->admin)
-            ->json('PUT', 'nova-api/reports/' . $this->reportId .'?editing=true&editMode=update', $this->newFields);
+            ->json(
+                'PUT',
+                'nova-api/reports/' . $this->report->id . '?editing=true&editMode=update', $this->newFields
+            );
 
         $response->assertStatus(200);
 
-        $this->assertTrue(!array_diff(Report::find($this->reportId)->toArray(), $response->original['resource']));
-
+        $this->assertTrue(!array_diff(Report::find($this->report->id)->toArray(), $response->original['resource']));
 
         Storage::disk('upload')->assertExists($response->original['resource']['presentation']);
     }
@@ -74,14 +72,15 @@ class AdminUpdateReportTest extends TestCase
         $newFields = $this->getReportData($newAnnouncer, $newConference);
 
         $response = $this->actingAs($this->admin)
-            ->json('PUT', 'nova-api/reports/' . $this->reportId .'?editing=true&editMode=update', $newFields);
+            ->json(
+                'PUT',
+                'nova-api/reports/' . $this->report->id . '?editing=true&editMode=update', $newFields
+            );
 
         $response->assertStatus(200);
-        Storage::disk('upload')->assertExists($response->original['resource']['presentation']);
 
         $this->assertTrue(
-            $this->announcer->joinedConferences()
-                ->where('conference_id', $this->conference->id)->count() === 0 &&
+            $this->announcer->joinedConferences()->where('conference_id', $this->conference->id)->count() === 0 &&
             $newAnnouncer->joinedConferences()->where('conference_id', $newConference->id)->count() === 1
         );
 
@@ -94,7 +93,10 @@ class AdminUpdateReportTest extends TestCase
         Storage::fake('upload');
 
         $response = $this->actingAs($this->admin)
-            ->json('PUT', 'nova-api/reports/' . $this->reportId .'?editing=true&editMode=update', $this->newFields);
+            ->json(
+                'PUT',
+                'nova-api/reports/' . $this->report->id . '?editing=true&editMode=update', $this->newFields
+            );
 
         $response->assertStatus(200);
 
@@ -116,7 +118,10 @@ class AdminUpdateReportTest extends TestCase
         ];
 
         $response = $this->actingAs($this->admin)
-            ->json('PUT', 'nova-api/reports/' . $this->reportId .'?editing=true&editMode=update', $newFields);
+            ->json(
+                'PUT',
+                'nova-api/reports/' . $this->report->id . '?editing=true&editMode=update', $newFields
+            );
 
         $response->assertStatus(422);
 
@@ -130,9 +135,36 @@ class AdminUpdateReportTest extends TestCase
         $reportId = Report::withTrashed()->latest()->first()->id + 1;
 
         $response = $this->actingAs($this->admin)
-            ->json('PUT', 'nova-api/reports/' . $reportId .'?editing=true&editMode=update', $this->newFields);
+            ->json(
+                'PUT',
+                'nova-api/reports/' . $reportId . '?editing=true&editMode=update', $this->newFields
+            );
 
         $response->assertStatus(404);
+    }
+
+    public function test_fail_no_auth()
+    {
+        $response = $this
+            ->json(
+                'PUT',
+                'nova-api/reports/' . $this->report->id . '?editing=true&editMode=update', $this->newFields
+            );
+
+        $response->assertStatus(401);
+    }
+
+    public function test_fail_no_admin()
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->json(
+                'PUT',
+                'nova-api/reports/' . $this->report->id . '?editing=true&editMode=update', $this->newFields
+            );
+
+        $response->assertStatus(403);
     }
 
     public function getReportData($announcer, $conference)
@@ -152,19 +184,4 @@ class AdminUpdateReportTest extends TestCase
         ];
     }
 
-    public function getNewFields()
-    {
-        return [
-            'user' => $this->announcer->id,
-            'conference' => $this->conference->id,
-            'topic' => 'New',
-            'start_time' => '11:50',
-            'end_time' => '12:20',
-            'presentation' => UploadedFile::fake()
-                ->create(
-                    fake()->word(), 5000,
-                    'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-                )
-        ];
-    }
 }
